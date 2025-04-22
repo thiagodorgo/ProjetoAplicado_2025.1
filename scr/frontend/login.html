@@ -4,32 +4,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
-    <link rel="stylesheet" href="styles.css">
     <style>
-        /* Centralização e estilização adicional */
         body {
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
+            padding: 0;
             font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
+            background: url('../../public/images/fundo.jpg') no-repeat center center fixed;
+            background-size: cover;
         }
 
         .login-container {
-            background: #fff;
+            background: rgba(255, 255, 255, 0.9); /* Fundo branco translúcido */
             padding: 20px 30px;
             border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             text-align: center;
             width: 100%;
             max-width: 400px;
+            position: relative;
         }
 
-        h1 {
+        .login-container img {
+            max-width: 250px;
+            height: auto;
             margin-bottom: 20px;
-            color: #333;
         }
 
         form {
@@ -75,23 +77,22 @@
             background-color: #0056b3;
         }
 
-        p {
-            margin-top: 15px;
-            color: #555;
+        .error {
+            color: red;
+            font-size: 14px;
+            margin-top: 10px;
         }
 
-        a {
-            color: #007BFF;
-            text-decoration: none;
-        }
-
-        a:hover {
-            text-decoration: underline;
+        .success {
+            color: green;
+            font-size: 14px;
+            margin-top: 10px;
         }
     </style>
 </head>
 <body>
     <div class="login-container">
+        <img src="../../public/images/logo2.jpg" alt="Logo da Empresa">
         <h1>Login</h1>
         <form id="login-form">
             <label for="email">Email</label>
@@ -102,8 +103,46 @@
             
             <button type="submit" class="btn-primary">Entrar</button>
         </form>
-        <p>Não tem uma conta? <a href="cadastro.html">Cadastre-se</a></p>
+        <div id="response-message"></div>
     </div>
-    <script src="scripts.js"></script>
+
+    <script>
+        document.getElementById('login-form').addEventListener('submit', async function (event) {
+            event.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const responseMessage = document.getElementById('response-message');
+
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    responseMessage.className = 'success';
+                    responseMessage.innerText = 'Login realizado com sucesso!';
+                    // Redireciona para a página apropriada com base no papel do usuário
+                    if (data.role === 'admin') {
+                        window.location.href = '/admin.html';
+                    } else {
+                        window.location.href = '/user.html';
+                    }
+                } else {
+                    responseMessage.className = 'error';
+                    responseMessage.innerText = data.message || 'Erro ao realizar o login.';
+                }
+            } catch (error) {
+                responseMessage.className = 'error';
+                responseMessage.innerText = 'Erro no servidor. Tente novamente mais tarde.';
+            }
+        });
+    </script>
 </body>
 </html>

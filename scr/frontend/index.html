@@ -3,101 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestão de Treinamentos</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Index</title>
     <style>
-        /* Centralização e estilização adicional */
         body {
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
+            padding: 0;
             font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
+            background: url('../../public/images/fundo.jpg') no-repeat center center fixed;
+            background-size: cover;
         }
 
-        .index-container {
-            background: #fff;
+        .container {
+            background: rgba(255, 255, 255, 0.9); /* Fundo branco translúcido */
             padding: 20px 30px;
             border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             text-align: center;
             width: 100%;
             max-width: 400px;
+            position: relative;
+            overflow: hidden; /* Garante que o conteúdo não ultrapasse o container */
         }
 
-        h1 {
-            margin-bottom: 20px;
+        .container img {
+            width: 100%; /* Faz o logo preencher toda a largura do container */
+            height: auto; /* Mantém as proporções do logo */
+            margin-bottom: 20px; /* Espaço abaixo do logo */
+            border-top-left-radius: 10px; /* Bordas arredondadas no topo esquerdo */
+            border-top-right-radius: 10px; /* Bordas arredondadas no topo direito */
+        }
+
+        .container h1 {
+            margin: 0 0 20px; /* Define o espaço abaixo do título */
             color: #333;
+            font-size: 24px;
         }
 
-        form {
+        .button-container {
             display: flex;
             flex-direction: column;
             gap: 15px;
         }
 
-        label {
-            text-align: left;
-            font-weight: bold;
-            margin-bottom: 5px;
-            color: #555;
-        }
-
-        input[type="text"] {
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 16px;
-            width: 100%;
-        }
-
-        input[type="text"]:focus {
-            outline: none;
-            border-color: #007BFF;
-            box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
-        }
-
-        .btn-primary {
-            padding: 10px;
+        .button-container a {
+            text-align: center;
+            display: block;
+            padding: 10px 20px;
             background-color: #007BFF;
             color: #fff;
-            border: none;
+            text-decoration: none;
             border-radius: 5px;
             font-size: 16px;
-            cursor: pointer;
+            transition: background-color 0.3s ease;
         }
 
-        .btn-primary:hover {
+        .button-container a:hover {
             background-color: #0056b3;
-        }
-
-        p {
-            margin-top: 15px;
-            color: #555;
-        }
-
-        a {
-            color: #007BFF;
-            text-decoration: none;
-        }
-
-        a:hover {
-            text-decoration: underline;
         }
     </style>
 </head>
 <body>
-    <div class="index-container">
-        <h1>Gestão de Treinamentos</h1>
-        <form id="search-form">
-            <label for="employee-id">CPF, Matrícula ou Nome do Funcionário:</label>
-            <input type="text" id="employee-id" name="employee-id" placeholder="Digite CPF, Matrícula ou Nome" required>
-            
-            <button type="submit" class="btn-primary">Buscar</button>
-        </form>
-        <p><a href="login.html">Login</a> | <a href="cadastro.html">Cadastro</a></p>
+    <div class="container">
+        <img src="../../public/images/logo2.jpg" alt="Logo da Empresa">
+        <h1>Bem-vindo</h1>
+        <div class="button-container">
+            <a href="login.html">Login</a>
+            <a href="cadastro.html">Cadastro</a>
+        </div>
     </div>
 </body>
 </html>
