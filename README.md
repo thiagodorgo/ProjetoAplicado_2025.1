@@ -70,8 +70,8 @@ Uma aplicação desktop multiplataforma que permite a verificação da situaçã
 
 ## 🖼️ Protótipo
 
-O protótipo das telas foi desenvolvido no Figma.  
-🔗 **[Acesse o protótipo interativo aqui](https://www.figma.com)** *(link será adicionado pelo grupo)*
+O protótipo das telas foi desenvolvido no Bubble.  
+🔗 **[Acesse o protótipo interativo aqui](https://www.Bubble.com)** *(link será adicionado pelo grupo)*
 
 ---
 
