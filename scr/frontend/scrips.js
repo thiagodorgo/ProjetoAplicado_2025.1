@@ -78,3 +78,64 @@ function initApp() {
 
 // Inicializa o app quando o DOM está totalmente carregado
 document.addEventListener('DOMContentLoaded', initApp);
+/**
+ * Gerenciar o formulário de login
+ */
+document.getElementById('login-form').addEventListener('submit', async (event) => {
+    event.preventDefault();
+
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+
+    try {
+        const response = await fetch('http://localhost:3000/api/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+
+        if (!response.ok) {
+            throw new Error('Erro ao fazer login');
+        }
+
+        const result = await response.json();
+        alert('Login realizado com sucesso!');
+        console.log(result);
+        // Redirecionar para a página principal, por exemplo:
+        // window.location.href = '/dashboard.html';
+    } catch (error) {
+        console.error(error);
+        alert('Erro: Verifique suas credenciais.');
+    }
+});
+/**
+ * Gerenciar o formulário de cadastro
+ */
+document.getElementById('cadastro-form').addEventListener('submit', async (event) => {
+    event.preventDefault();
+
+    const name = document.getElementById('name').value;
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+
+    try {
+        const response = await fetch('http://localhost:3000/api/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, email, password })
+        });
+
+        if (!response.ok) {
+            throw new Error('Erro ao fazer cadastro');
+        }
+
+        const result = await response.json();
+        alert('Cadastro realizado com sucesso!');
+        console.log(result);
+        // Redirecionar para a página de login
+        window.location.href = 'login.html';
+    } catch (error) {
+        console.error(error);
+        alert('Erro: Não foi possível realizar o cadastro.');
+    }
+});
