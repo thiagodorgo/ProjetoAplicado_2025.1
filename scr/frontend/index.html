@@ -3,63 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Projeto Aplicado - Treinamentos</title>
+    <title>Gestão de Treinamentos</title>
     <link rel="stylesheet" href="styles.css">
-    <link rel="icon" href="favicon.ico" type="image/x-icon"> <!-- Ícone opcional -->
 </head>
 <body>
-    <!-- Cabeçalho -->
     <header>
-        <nav class="navbar">
-            <div class="container">
-                <h1 class="logo">Treinamentos</h1>
-                <ul class="nav-links">
-                    <li><a href="#courses">Cursos</a></li>
-                    <li><a href="#trainings">Treinamentos</a></li>
-                    <li><a href="#contact">Contato</a></li>
-                </ul>
-            </div>
+        <h1>Gestão de Treinamentos</h1>
+        <nav>
+            <ul>
+                <li><a href="login.html">Login</a></li>
+                <li><a href="cadastro.html">Cadastro</a></li>
+            </ul>
         </nav>
     </header>
 
-    <!-- Conteúdo Principal -->
     <main>
-        <section id="welcome" class="hero">
-            <div class="container">
-                <h2>Bem-vindo ao Sistema de Treinamentos</h2>
-                <p>Gerencie cursos, treinamentos e funcionários de forma eficiente.</p>
-                <a href="#courses" class="btn-primary">Ver Cursos</a>
+        <section id="search-training">
+            <h2>Buscar Situação de Treinamentos</h2>
+            <form id="search-form">
+                <label for="employee-id">CPF, Matricula ou Nome do Funcionário:</label>
+                <input type="text" id="employee-id" name="employee-id" placeholder="CPF, Matricula ou Nome." required>
+                <button type="submit" class="btn-primary">Buscar</button>
+            </form>
+            <div id="training-results">
+                <!-- Resultados da busca serão exibidos aqui -->
             </div>
         </section>
 
-        <section id="courses" class="courses">
-            <div class="container">
-                <h2>Cursos Disponíveis</h2>
-                <div id="course-list" class="card-grid">
-                    <!-- Lista de cursos será preenchida dinamicamente -->
-                </div>
+        <section id="admin-section" style="display: none;">
+            <h2>Painel Administrativo</h2>
+            <div>
+                <h3>Inserir Novo Curso</h3>
+                <form id="add-course-form">
+                    <label for="course-name">Nome do Curso:</label>
+                    <input type="text" id="course-name" name="course-name" placeholder="Digite o nome do curso" required>
+                    
+                    <label for="duration">Duração (em horas):</label>
+                    <input type="number" id="duration" name="duration" placeholder="Digite a duração" required>
+                    
+                    <label for="validity">Validade (em anos):</label>
+                    <input type="number" id="validity" name="validity" placeholder="Digite a validade" required>
+                    
+                    <button type="submit" class="btn-primary">Adicionar Curso</button>
+                </form>
             </div>
-        </section>
 
-        <section id="trainings" class="trainings">
-            <div class="container">
-                <h2>Treinamentos Realizados</h2>
-                <div id="training-list" class="card-grid">
-                    <!-- Lista de treinamentos será preenchida dinamicamente -->
-                </div>
+            <div>
+                <h3>Registrar Novo Treinamento</h3>
+                <form id="add-training-form">
+                    <label for="employee-id-training">ID do Funcionário:</label>
+                    <input type="text" id="employee-id-training" name="employee-id-training" placeholder="Digite o ID do funcionário" required>
+                    
+                    <label for="course-id">ID do Curso:</label>
+                    <input type="text" id="course-id" name="course-id" placeholder="Digite o ID do curso" required>
+                    
+                    <label for="completion-date">Data de Conclusão:</label>
+                    <input type="date" id="completion-date" name="completion-date" required>
+                    
+                    <button type="submit" class="btn-primary">Registrar Treinamento</button>
+                </form>
             </div>
         </section>
     </main>
 
-    <!-- Rodapé -->
     <footer>
-        <div class="container">
-            <p>&copy; 2025 Projeto Aplicado. Todos os direitos reservados.</p>
-            <p><a href="#contact">Contato</a> | <a href="#">Política de Privacidade</a></p>
-        </div>
+        <p>&copy; 2025 Gestão de Treinamentos</p>
     </footer>
 
-    <!-- Scripts -->
-    <script src="scripts.js" defer></script>
+    <script src="scripts.js"></script>
 </body>
 </html>
