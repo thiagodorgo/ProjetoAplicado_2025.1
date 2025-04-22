@@ -77,7 +77,7 @@ O protótipo das telas foi desenvolvido no Figma.
 
 ## 💻 Implementação
 
-🔗 **[Repositório GitHub do Projeto](https://github.com/SeuRepositorio)** *(atualize com o link real)*
+🔗 **[Repositório GitHub do Projeto](https://github.com/thiagodorgo/ProjetoAplicado_2025.1)** 
 
 O repositório contém:
 - Código-fonte da aplicação
