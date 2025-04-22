@@ -1,75 +1,103 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestão de Treinamentos</title>
     <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Centralização e estilização adicional */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+        }
+
+        .index-container {
+            background: #fff;
+            padding: 20px 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        label {
+            text-align: left;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+            width: 100%;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #007BFF;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+        }
+
+        .btn-primary {
+            padding: 10px;
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+        p {
+            margin-top: 15px;
+            color: #555;
+        }
+
+        a {
+            color: #007BFF;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
-    <header>
+    <div class="index-container">
         <h1>Gestão de Treinamentos</h1>
-        <nav>
-            <ul>
-                <li><a href="login.html">Login</a></li>
-                <li><a href="cadastro.html">Cadastro</a></li>
-            </ul>
-        </nav>
-    </header>
-
-    <main>
-        <section id="search-training">
-            <h2>Buscar Situação de Treinamentos</h2>
-            <form id="search-form">
-                <label for="employee-id">CPF, Matricula ou Nome do Funcionário:</label>
-                <input type="text" id="employee-id" name="employee-id" placeholder="CPF, Matricula ou Nome." required>
-                <button type="submit" class="btn-primary">Buscar</button>
-            </form>
-            <div id="training-results">
-                <!-- Resultados da busca serão exibidos aqui -->
-            </div>
-        </section>
-
-        <section id="admin-section" style="display: none;">
-            <h2>Painel Administrativo</h2>
-            <div>
-                <h3>Inserir Novo Curso</h3>
-                <form id="add-course-form">
-                    <label for="course-name">Nome do Curso:</label>
-                    <input type="text" id="course-name" name="course-name" placeholder="Digite o nome do curso" required>
-                    
-                    <label for="duration">Duração (em horas):</label>
-                    <input type="number" id="duration" name="duration" placeholder="Digite a duração" required>
-                    
-                    <label for="validity">Validade (em anos):</label>
-                    <input type="number" id="validity" name="validity" placeholder="Digite a validade" required>
-                    
-                    <button type="submit" class="btn-primary">Adicionar Curso</button>
-                </form>
-            </div>
-
-            <div>
-                <h3>Registrar Novo Treinamento</h3>
-                <form id="add-training-form">
-                    <label for="employee-id-training">ID do Funcionário:</label>
-                    <input type="text" id="employee-id-training" name="employee-id-training" placeholder="Digite o ID do funcionário" required>
-                    
-                    <label for="course-id">ID do Curso:</label>
-                    <input type="text" id="course-id" name="course-id" placeholder="Digite o ID do curso" required>
-                    
-                    <label for="completion-date">Data de Conclusão:</label>
-                    <input type="date" id="completion-date" name="completion-date" required>
-                    
-                    <button type="submit" class="btn-primary">Registrar Treinamento</button>
-                </form>
-            </div>
-        </section>
-    </main>
-
-    <footer>
-        <p>&copy; 2025 Gestão de Treinamentos</p>
-    </footer>
-
-    <script src="scripts.js"></script>
+        <form id="search-form">
+            <label for="employee-id">CPF, Matrícula ou Nome do Funcionário:</label>
+            <input type="text" id="employee-id" name="employee-id" placeholder="Digite CPF, Matrícula ou Nome" required>
+            
+            <button type="submit" class="btn-primary">Buscar</button>
+        </form>
+        <p><a href="login.html">Login</a> | <a href="cadastro.html">Cadastro</a></p>
+    </div>
 </body>
 </html>

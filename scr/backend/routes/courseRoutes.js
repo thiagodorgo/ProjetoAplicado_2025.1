@@ -5,14 +5,14 @@ const {
     getCourseById,
     createCourse,
     updateCourse,
-    deleteCourse
+    deleteCourse,
 } = require('../controllers/courseController');
 
 // Rotas para Cursos
-router.get('/', getAllCourses);
-router.get('/:id', getCourseById);
-router.post('/', createCourse);
-router.put('/:id', updateCourse);
-router.delete('/:id', deleteCourse);
+router.get('/', getAllCourses); // Retorna todos os cursos
+router.get('/:id', getCourseById); // Retorna um curso específico pelo ID
+router.post('/', createCourse); // Cria um novo curso
+router.put('/:id', updateCourse); // Atualiza um curso existente pelo ID
+router.delete('/:id', deleteCourse); // Deleta um curso pelo ID
 
 module.exports = router;

@@ -7,19 +7,36 @@
 const API_BASE_URL = 'http://localhost:3000/api';
 
 /**
- * Fetch e renderização da lista de cursos
+ * Fetch genérico para reutilização
+ */
+async function fetchData(endpoint, method = 'GET', body = null) {
+    const options = {
+        method,
+        headers: { 'Content-Type': 'application/json' }
+    };
+    if (body) options.body = JSON.stringify(body);
+
+    try {
+        const response = await fetch(`${API_BASE_URL}${endpoint}`, options);
+        if (!response.ok) {
+            throw new Error(`Erro na requisição: ${response.statusText}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error(`Erro ao processar a requisição em ${endpoint}:`, error);
+        throw error;
+    }
+}
+
+/**
+ * Renderização da lista de cursos
  */
 async function fetchCourses() {
     const courseList = document.getElementById('course-list');
     courseList.innerHTML = '<p>Carregando cursos...</p>'; // Loader temporário
 
     try {
-        const response = await fetch(`${API_BASE_URL}/courses`);
-        if (!response.ok) {
-            throw new Error('Erro ao buscar cursos');
-        }
-
-        const courses = await response.json();
+        const courses = await fetchData('/courses');
         courseList.innerHTML = ''; // Limpa o loader
         courses.forEach(course => {
             courseList.innerHTML += `
@@ -31,25 +48,19 @@ async function fetchCourses() {
             `;
         });
     } catch (error) {
-        console.error(error);
         courseList.innerHTML = '<p>Erro ao carregar cursos. Tente novamente mais tarde.</p>';
     }
 }
 
 /**
- * Fetch e renderização da lista de treinamentos
+ * Renderização da lista de treinamentos
  */
 async function fetchTrainings() {
     const trainingList = document.getElementById('training-list');
     trainingList.innerHTML = '<p>Carregando treinamentos...</p>'; // Loader temporário
 
     try {
-        const response = await fetch(`${API_BASE_URL}/trainings`);
-        if (!response.ok) {
-            throw new Error('Erro ao buscar treinamentos');
-        }
-
-        const trainings = await response.json();
+        const trainings = await fetchData('/trainings');
         trainingList.innerHTML = ''; // Limpa o loader
         trainings.forEach(training => {
             trainingList.innerHTML += `
@@ -62,8 +73,48 @@ async function fetchTrainings() {
             `;
         });
     } catch (error) {
-        console.error(error);
         trainingList.innerHTML = '<p>Erro ao carregar treinamentos. Tente novamente mais tarde.</p>';
+    }
+}
+
+/**
+ * Gerenciar o formulário de login
+ */
+async function handleLogin(event) {
+    event.preventDefault();
+
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+
+    try {
+        const result = await fetchData('/login', 'POST', { email, password });
+        alert('Login realizado com sucesso!');
+        console.log(result);
+        // Redirecionar para a página principal, por exemplo:
+        // window.location.href = '/dashboard.html';
+    } catch (error) {
+        alert('Erro: Verifique suas credenciais.');
+    }
+}
+
+/**
+ * Gerenciar o formulário de cadastro
+ */
+async function handleCadastro(event) {
+    event.preventDefault();
+
+    const name = document.getElementById('name').value;
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+
+    try {
+        const result = await fetchData('/register', 'POST', { name, email, password });
+        alert('Cadastro realizado com sucesso!');
+        console.log(result);
+        // Redirecionar para a página de login
+        window.location.href = 'login.html';
+    } catch (error) {
+        alert('Erro: Não foi possível realizar o cadastro.');
     }
 }
 
@@ -72,70 +123,16 @@ async function fetchTrainings() {
  */
 function initApp() {
     console.log('Iniciando aplicação...');
-    fetchCourses();
-    fetchTrainings();
+    if (document.getElementById('course-list')) fetchCourses();
+    if (document.getElementById('training-list')) fetchTrainings();
+
+    // Gerenciar formulários
+    const loginForm = document.getElementById('login-form');
+    if (loginForm) loginForm.addEventListener('submit', handleLogin);
+
+    const cadastroForm = document.getElementById('cadastro-form');
+    if (cadastroForm) cadastroForm.addEventListener('submit', handleCadastro);
 }
 
 // Inicializa o app quando o DOM está totalmente carregado
 document.addEventListener('DOMContentLoaded', initApp);
-/**
- * Gerenciar o formulário de login
- */
-document.getElementById('login-form').addEventListener('submit', async (event) => {
-    event.preventDefault();
-
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-
-    try {
-        const response = await fetch('http://localhost:3000/api/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password })
-        });
-
-        if (!response.ok) {
-            throw new Error('Erro ao fazer login');
-        }
-
-        const result = await response.json();
-        alert('Login realizado com sucesso!');
-        console.log(result);
-        // Redirecionar para a página principal, por exemplo:
-        // window.location.href = '/dashboard.html';
-    } catch (error) {
-        console.error(error);
-        alert('Erro: Verifique suas credenciais.');
-    }
-});
-/**
- * Gerenciar o formulário de cadastro
- */
-document.getElementById('cadastro-form').addEventListener('submit', async (event) => {
-    event.preventDefault();
-
-    const name = document.getElementById('name').value;
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-
-    try {
-        const response = await fetch('http://localhost:3000/api/register', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name, email, password })
-        });
-
-        if (!response.ok) {
-            throw new Error('Erro ao fazer cadastro');
-        }
-
-        const result = await response.json();
-        alert('Cadastro realizado com sucesso!');
-        console.log(result);
-        // Redirecionar para a página de login
-        window.location.href = 'login.html';
-    } catch (error) {
-        console.error(error);
-        alert('Erro: Não foi possível realizar o cadastro.');
-    }
-});

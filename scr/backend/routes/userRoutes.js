@@ -1,8 +1,15 @@
 /**
- * Routes for User Management
+ * User Routes
+ * This file defines the routes for user management.
  */
 const express = require('express');
-const { getAllUsers, createUser, getUserById, updateUser, deleteUser } = require('../controllers/userController');
+const { 
+    getAllUsers, 
+    createUser, 
+    getUserById, 
+    updateUser, 
+    deleteUser 
+} = require('../controllers/userController');
 
 const router = express.Router();
 
@@ -14,18 +21,18 @@ const router = express.Router();
 router.get('/', getAllUsers);
 
 /**
- * @route   POST /api/users
- * @desc    Create a new user
- * @access  Public
- */
-router.post('/', createUser);
-
-/**
  * @route   GET /api/users/:id
  * @desc    Retrieve a specific user by ID
  * @access  Public
  */
 router.get('/:id', getUserById);
+
+/**
+ * @route   POST /api/users
+ * @desc    Create a new user
+ * @access  Public
+ */
+router.post('/', createUser);
 
 /**
  * @route   PUT /api/users/:id

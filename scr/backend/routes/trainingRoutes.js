@@ -2,13 +2,15 @@ const express = require('express');
 const router = express.Router();
 const {
     getAllTrainings,
+    getTrainingsByEmployeeId,
     createTraining,
-    deleteTraining
+    deleteTraining,
 } = require('../controllers/trainingController');
 
 // Rotas para Treinamentos
-router.get('/', getAllTrainings);
-router.post('/', createTraining);
-router.delete('/:id', deleteTraining);
+router.get('/', getAllTrainings); // Lista todos os treinamentos
+router.get('/:employeeId', getTrainingsByEmployeeId); // Busca treinamentos de um funcionário específico
+router.post('/', createTraining); // Cria um novo treinamento
+router.delete('/:id', deleteTraining); // Deleta um treinamento pelo ID
 
 module.exports = router;
