@@ -54,6 +54,17 @@ const User = sequelize.define(
                 },
             },
         },
+        role: {
+            type: DataTypes.ENUM('admin', 'user'),
+            defaultValue: 'user',
+            allowNull: false,
+            validate: {
+                isIn: {
+                    args: [['admin', 'user']],
+                    msg: 'O papel do usuário deve ser "admin" ou "user".',
+                },
+            },
+        },
         createdAt: {
             type: DataTypes.DATE,
             defaultValue: DataTypes.NOW,
@@ -73,6 +84,7 @@ const User = sequelize.define(
             },
         },
         tableName: 'users', // Nome da tabela no banco de dados
+        timestamps: true,  // Adiciona automaticamente createdAt e updatedAt
     }
 );
 

@@ -12,11 +12,13 @@ const User = require('../models/User');
  */
 const getAllUsers = async (req, res, next) => {
     try {
-        const users = await User.findAll();
+        const users = await User.findAll({
+            attributes: ['id', 'name', 'email', 'role', 'createdAt'], // Retorna apenas campos relevantes
+        });
         res.status(200).json(users);
     } catch (error) {
-        console.error(`Error fetching users: ${error.message}`);
-        next(error); // Pass the error to the global error handler
+        console.error(`Erro ao buscar usuários: ${error.message}`);
+        next(error); // Passa o erro para o middleware global de tratamento
     }
 };
 
@@ -27,13 +29,15 @@ const getAllUsers = async (req, res, next) => {
  */
 const getUserById = async (req, res, next) => {
     try {
-        const user = await User.findByPk(req.params.id);
+        const user = await User.findByPk(req.params.id, {
+            attributes: ['id', 'name', 'email', 'role', 'createdAt'], // Retorna apenas campos relevantes
+        });
         if (!user) {
-            return res.status(404).json({ error: 'User not found' });
+            return res.status(404).json({ error: 'Usuário não encontrado' });
         }
         res.status(200).json(user);
     } catch (error) {
-        console.error(`Error fetching user by ID: ${error.message}`);
+        console.error(`Erro ao buscar usuário por ID: ${error.message}`);
         next(error);
     }
 };
@@ -45,11 +49,28 @@ const getUserById = async (req, res, next) => {
  */
 const createUser = async (req, res, next) => {
     try {
-        const { name, email } = req.body;
-        const newUser = await User.create({ name, email });
-        res.status(201).json(newUser);
+        const { name, email, password, role } = req.body;
+
+        // Validação básica de entrada (pode ser expandida com bibliotecas como joi)
+        if (!name || !email || !password) {
+            return res.status(400).json({ error: 'Todos os campos obrigatórios devem ser preenchidos.' });
+        }
+
+        const newUser = await User.create({ name, email, password, role });
+        res.status(201).json({
+            message: 'Usuário criado com sucesso!',
+            user: {
+                id: newUser.id,
+                name: newUser.name,
+                email: newUser.email,
+                role: newUser.role,
+            },
+        });
     } catch (error) {
-        console.error(`Error creating user: ${error.message}`);
+        console.error(`Erro ao criar usuário: ${error.message}`);
+        if (error.name === 'SequelizeUniqueConstraintError') {
+            return res.status(400).json({ error: 'Email já está em uso.' });
+        }
         next(error);
     }
 };
@@ -61,17 +82,31 @@ const createUser = async (req, res, next) => {
  */
 const updateUser = async (req, res, next) => {
     try {
-        const { name, email } = req.body;
+        const { name, email, role } = req.body;
+
+        // Busca o usuário pelo ID
         const user = await User.findByPk(req.params.id);
         if (!user) {
-            return res.status(404).json({ error: 'User not found' });
+            return res.status(404).json({ error: 'Usuário não encontrado' });
         }
+
+        // Atualiza apenas os campos fornecidos
         user.name = name || user.name;
         user.email = email || user.email;
+        user.role = role || user.role;
         await user.save();
-        res.status(200).json(user);
+
+        res.status(200).json({
+            message: 'Usuário atualizado com sucesso!',
+            user: {
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                role: user.role,
+            },
+        });
     } catch (error) {
-        console.error(`Error updating user: ${error.message}`);
+        console.error(`Erro ao atualizar usuário: ${error.message}`);
         next(error);
     }
 };
@@ -85,12 +120,12 @@ const deleteUser = async (req, res, next) => {
     try {
         const user = await User.findByPk(req.params.id);
         if (!user) {
-            return res.status(404).json({ error: 'User not found' });
+            return res.status(404).json({ error: 'Usuário não encontrado' });
         }
         await user.destroy();
-        res.status(200).json({ message: 'User deleted successfully' });
+        res.status(200).json({ message: 'Usuário deletado com sucesso!' });
     } catch (error) {
-        console.error(`Error deleting user: ${error.message}`);
+        console.error(`Erro ao deletar usuário: ${error.message}`);
         next(error);
     }
 };

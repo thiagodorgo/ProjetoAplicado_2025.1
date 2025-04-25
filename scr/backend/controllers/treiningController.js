@@ -1,101 +1,125 @@
-// trainingController.js
+/**
+ * Training Controller
+ * Handles all logic related to training operations.
+ */
 
-// Função para buscar todos os treinamentos
-const getAllTrainings = (req, res) => {
-    // Lógica para buscar todos os treinamentos do banco de dados (exemplo substituído por dados simulados)
-    const trainings = [
-        {
-            id: 1,
-            employeeId: 101,
-            courseName: "Curso de Liderança",
-            completion_date: "2025-01-15",
-            expiration_date: "2028-01-15",
-        },
-        {
-            id: 2,
-            employeeId: 102,
-            courseName: "Curso de Primeiros Socorros",
-            completion_date: "2024-12-10",
-            expiration_date: "2026-12-10",
-        },
-    ]; // Substituir por lógica real do banco de dados
+const Training = require('../models/Training');
+const Course = require('../models/Course');
 
-    res.status(200).json({ trainings });
-};
-
-// Função para buscar treinamentos por ID do funcionário
-const getTrainingsByEmployeeId = (req, res) => {
-    const { employeeId } = req.params;
-
-    // Exemplo de lógica para buscar dados do banco (substituir com ORM/DB)
-    const trainings = [
-        {
-            id: 1,
-            courseName: "Curso de Liderança",
-            completion_date: "2025-01-15",
-            expiration_date: "2028-01-15",
-        },
-        {
-            id: 2,
-            courseName: "Curso de Primeiros Socorros",
-            completion_date: "2024-12-10",
-            expiration_date: "2026-12-10",
-        },
-    ]; // Substituir por busca real no banco de dados.
-
-    // Filtro para treinamentos do funcionário
-    const employeeTrainings = trainings.filter(
-        (training) => training.employeeId === parseInt(employeeId)
-    );
-
-    res.status(200).json({
-        employeeId,
-        trainings: employeeTrainings,
-    });
-};
-
-// Função para criar um novo treinamento
-const addTraining = (req, res) => {
-    const { employeeId, courseId, completion_date } = req.body;
-
-    if (!employeeId || !courseId || !completion_date) {
-        return res.status(400).json({ message: "Dados incompletos" });
+/**
+ * @desc    Retrieve all trainings
+ * @route   GET /api/trainings
+ * @access  Public
+ */
+const getAllTrainings = async (req, res, next) => {
+    try {
+        const trainings = await Training.findAll({
+            attributes: ['id', 'employeeId', 'courseId', 'completion_date', 'expiration_date', 'status'],
+            include: {
+                model: Course,
+                attributes: ['name', 'duration_in_hours', 'validity_in_years'],
+            },
+        });
+        res.status(200).json(trainings);
+    } catch (error) {
+        console.error(`Erro ao buscar treinamentos: ${error.message}`);
+        next(error);
     }
-
-    // Lógica para salvar no banco de dados (substituir com ORM/DB)
-    const expiration_date = new Date(completion_date);
-    expiration_date.setFullYear(expiration_date.getFullYear() + 2); // Exemplo de cálculo de validade de 2 anos
-
-    const newTraining = {
-        id: Math.floor(Math.random() * 1000), // Simula um ID gerado automaticamente
-        employeeId,
-        courseId,
-        completion_date,
-        expiration_date,
-    };
-
-    res.status(201).json({
-        message: "Treinamento registrado com sucesso!",
-        training: newTraining,
-    });
 };
 
-// Função para deletar um treinamento
-const deleteTraining = (req, res) => {
-    const { id } = req.params;
-
-    if (!id) {
-        return res.status(400).json({ message: "ID do treinamento não fornecido" });
+/**
+ * @desc    Retrieve trainings by Employee ID
+ * @route   GET /api/trainings/:employeeId
+ * @access  Public
+ */
+const getTrainingsByEmployeeId = async (req, res, next) => {
+    try {
+        const { employeeId } = req.params;
+        const trainings = await Training.findAll({
+            where: { employeeId },
+            attributes: ['id', 'courseId', 'completion_date', 'expiration_date', 'status'],
+            include: {
+                model: Course,
+                attributes: ['name', 'duration_in_hours', 'validity_in_years'],
+            },
+        });
+        if (trainings.length === 0) {
+            return res.status(404).json({ error: 'Nenhum treinamento encontrado para este funcionário.' });
+        }
+        res.status(200).json(trainings);
+    } catch (error) {
+        console.error(`Erro ao buscar treinamentos por Employee ID: ${error.message}`);
+        next(error);
     }
-
-    // Lógica para deletar do banco de dados (substituir com ORM/DB)
-    res.status(200).json({ message: `Treinamento com ID ${id} deletado com sucesso` });
 };
 
-// Exportação das funções
+/**
+ * @desc    Create a new training
+ * @route   POST /api/trainings
+ * @access  Public
+ */
+const createTraining = async (req, res, next) => {
+    try {
+        const { employeeId, courseId, completion_date } = req.body;
+
+        // Validação básica de entrada
+        if (!employeeId || !courseId || !completion_date) {
+            return res.status(400).json({ error: 'Campos obrigatórios: employeeId, courseId, completion_date' });
+        }
+
+        // Verifica se o curso existe
+        const course = await Course.findByPk(courseId);
+        if (!course) {
+            return res.status(404).json({ error: 'Curso não encontrado.' });
+        }
+
+        // Calcula a data de expiração
+        const expirationDate = new Date(completion_date);
+        expirationDate.setFullYear(expirationDate.getFullYear() + course.validity_in_years);
+
+        const newTraining = await Training.create({
+            employeeId,
+            courseId,
+            completion_date,
+            expiration_date: expirationDate,
+            status: 'upcoming',
+        });
+
+        res.status(201).json({
+            message: 'Treinamento criado com sucesso!',
+            training: newTraining,
+        });
+    } catch (error) {
+        console.error(`Erro ao criar treinamento: ${error.message}`);
+        next(error);
+    }
+};
+
+/**
+ * @desc    Delete a training by ID
+ * @route   DELETE /api/trainings/:id
+ * @access  Public
+ */
+const deleteTraining = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+
+        const training = await Training.findByPk(id);
+        if (!training) {
+            return res.status(404).json({ error: 'Treinamento não encontrado.' });
+        }
+
+        await training.destroy();
+        res.status(200).json({ message: 'Treinamento deletado com sucesso!' });
+    } catch (error) {
+        console.error(`Erro ao deletar treinamento: ${error.message}`);
+        next(error);
+    }
+};
+
 module.exports = {
     getAllTrainings,
     getTrainingsByEmployeeId,
-    addTraining,
+    createTraining,
     deleteTraining,
 };

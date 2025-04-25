@@ -4,6 +4,7 @@ const express = require('express');
 const morgan = require('morgan');
 const helmet = require('helmet');
 const cors = require('cors');
+const compression = require('compression'); // Adicionado para compactação de respostas
 
 const userRoutes = require('./routes/userRoutes'); // Rotas de usuários
 const courseRoutes = require('./routes/courseRoutes'); // Rotas de cursos
@@ -16,6 +17,7 @@ const PORT = process.env.PORT || 3000;
 // Middlewares globais
 app.use(helmet()); // Segurança
 app.use(cors()); // Permitir CORS
+app.use(compression()); // Compactação de respostas HTTP para melhorar performance
 if (process.env.NODE_ENV === 'development') {
     app.use(morgan('dev')); // Logs detalhados no ambiente de desenvolvimento
 }
@@ -26,7 +28,7 @@ app.use('/api/users', userRoutes); // Rotas de usuários
 app.use('/api/courses', courseRoutes); // Rotas de cursos
 app.use('/api/trainings', trainingRoutes); // Rotas de treinamentos
 
-// Middleware para monitoramento (mover para um arquivo separado)
+// Middleware para monitoramento
 app.use((req, res, next) => {
     console.log(`[${new Date().toISOString()}] ${req.method} - ${req.url}`);
     next();

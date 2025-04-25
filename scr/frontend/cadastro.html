@@ -33,8 +33,6 @@
             width: 100%; /* Faz o logo preencher toda a largura do container */
             height: auto; /* Mantém as proporções do logo */
             margin-bottom: 20px; /* Espaço abaixo do logo */
-            border-top-left-radius: 10px; /* Bordas arredondadas no topo esquerdo */
-            border-top-right-radius: 10px; /* Bordas arredondadas no topo direito */
         }
 
         .tab-buttons {
@@ -122,59 +120,81 @@
         button[type="submit"]:hover {
             background-color: #0056b3;
         }
+
+        .error, .success {
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        .error {
+            color: red;
+        }
+
+        .success {
+            color: green;
+        }
     </style>
     <script>
-        function toggleForm(formId) {
-            const forms = document.querySelectorAll('.form-container');
-            const buttons = document.querySelectorAll('.tab-buttons button');
+        // Função para alternar o fundo aleatoriamente
+        function setRandomBackground() {
+            const backgrounds = [
+                '../../public/images/fundo.jpg',
+                '../../public/images/fundo2.jpg',
+                '../../public/images/fundo3.jpg'
+            ];
+            const randomIndex = Math.floor(Math.random() * backgrounds.length);
+            document.body.style.backgroundImage = `url('${backgrounds[randomIndex]}')`;
+        }
 
+        // Chama a função ao carregar a página
+        window.onload = setRandomBackground;
+
+        // Alternar entre abas do formulário
+        function switchTab(tabId) {
+            const forms = document.querySelectorAll('.form-container');
             forms.forEach(form => form.classList.remove('active'));
+
+            document.getElementById(tabId).classList.add('active');
+
+            const buttons = document.querySelectorAll('.tab-buttons button');
             buttons.forEach(button => button.classList.remove('active'));
 
-            document.getElementById(formId).classList.add('active');
-            document.querySelector(`[data-form="${formId}"]`).classList.add('active');
+            document.querySelector(`button[data-tab="${tabId}"]`).classList.add('active');
         }
     </script>
 </head>
 <body>
     <div class="container">
         <img src="../../public/images/logo2.jpg" alt="Logo da Empresa">
-        <h1>Cadastro</h1>
         <div class="tab-buttons">
-            <button class="active" data-form="user-form" onclick="toggleForm('user-form')">Cadastro de Usuário</button>
-            <button data-form="employee-form" onclick="toggleForm('employee-form')">Cadastro de Funcionário</button>
+            <button class="active" data-tab="user-form" onclick="switchTab('user-form')">Usuário</button>
+            <button data-tab="employee-form" onclick="switchTab('employee-form')">Funcionário</button>
         </div>
         <div id="user-form" class="form-container active">
-            <form enctype="multipart/form-data">
+            <form>
                 <label for="username">Nome de Usuário</label>
-                <input type="text" id="username" name="username" placeholder="Digite seu nome de usuário" required>
-
+                <input type="text" id="username" name="username" placeholder="Digite seu nome" required>
+                
                 <label for="email">Email</label>
                 <input type="email" id="email" name="email" placeholder="Digite seu email" required>
-
+                
                 <label for="password">Senha</label>
                 <input type="password" id="password" name="password" placeholder="Digite sua senha" required>
-
-                <label for="photo">Foto</label>
-                <input type="file" id="photo" name="photo" accept="image/*" required>
-
-                <button type="submit">Cadastrar Usuário</button>
+                
+                <button type="submit">Cadastrar</button>
             </form>
         </div>
         <div id="employee-form" class="form-container">
-            <form enctype="multipart/form-data">
-                <label for="employee-name">Nome do Funcionário</label>
+            <form>
+                <label for="employee-name">Nome</label>
                 <input type="text" id="employee-name" name="employee-name" placeholder="Digite o nome do funcionário" required>
-
-                <label for="role">Cargo</label>
-                <input type="text" id="role" name="role" placeholder="Digite o cargo do funcionário" required>
-
-                <label for="training">Treinamento</label>
-                <textarea id="training" name="training" placeholder="Descreva o treinamento" rows="4" required></textarea>
-
+                
+                <label for="employee-email">Email</label>
+                <input type="email" id="employee-email" name="employee-email" placeholder="Digite o email" required>
+                
                 <label for="employee-photo">Foto</label>
                 <input type="file" id="employee-photo" name="employee-photo" accept="image/*" required>
-
+                
                 <button type="submit">Cadastrar Funcionário</button>
             </form>
         </div>

@@ -43,15 +43,25 @@ const Training = sequelize.define('Training', {
             },
         },
     },
+    status: {
+        type: DataTypes.ENUM('active', 'expired', 'upcoming'),
+        defaultValue: 'upcoming',
+        allowNull: false,
+        validate: {
+            isIn: {
+                args: [['active', 'expired', 'upcoming']],
+                msg: 'O status deve ser "active", "expired" ou "upcoming".',
+            },
+        },
+    },
 }, {
     timestamps: true, // Adiciona createdAt e updatedAt automaticamente
     tableName: 'trainings', // Nome da tabela no banco de dados
 });
 
-// Hook para calcular a data de expiração automaticamente
+// Hook para calcular a data de expiração automaticamente antes de criar
 Training.beforeCreate(async (training) => {
     if (!training.expiration_date) {
-        // Buscar o curso relacionado para obter a validade
         try {
             const course = await Course.findByPk(training.courseId);
             if (course) {
@@ -64,6 +74,26 @@ Training.beforeCreate(async (training) => {
         } catch (error) {
             throw new Error(`Erro ao calcular a data de expiração: ${error.message}`);
         }
+    }
+});
+
+// Hook para atualizar o status com base na data de expiração
+Training.afterFind((trainings) => {
+    const updateStatus = (training) => {
+        const now = new Date();
+        if (training.expiration_date && new Date(training.expiration_date) < now) {
+            training.status = 'expired';
+        } else if (training.completion_date && new Date(training.completion_date) > now) {
+            training.status = 'upcoming';
+        } else {
+            training.status = 'active';
+        }
+    };
+
+    if (Array.isArray(trainings)) {
+        trainings.forEach(updateStatus);
+    } else if (trainings) {
+        updateStatus(trainings);
     }
 });
 

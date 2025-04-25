@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Index</title>
+    <title>Bem-vindo</title>
     <style>
         body {
             display: flex;
@@ -13,7 +13,6 @@
             margin: 0;
             padding: 0;
             font-family: Arial, sans-serif;
-            background: url('../../public/images/fundo.jpg') no-repeat center center fixed;
             background-size: cover;
         }
 
@@ -65,14 +64,49 @@
             background-color: #0056b3;
         }
     </style>
+    <script>
+        // Função para alternar o fundo aleatoriamente
+        function setRandomBackground() {
+            const backgrounds = [
+                '../../public/images/fundo.jpg',
+                '../../public/images/fundo2.jpg',
+                '../../public/images/fundo3.jpg'
+            ];
+            const randomIndex = Math.floor(Math.random() * backgrounds.length);
+            document.body.style.backgroundImage = `url('${backgrounds[randomIndex]}')`;
+        }
+
+        // Chama a função ao carregar a página
+        window.onload = setRandomBackground;
+
+        // Exemplo de funcionalidade para carregar informações do usuário
+        function loadUserInfo() {
+            // Simula carregamento de dados do usuário logado
+            const userInfo = {
+                name: "João da Silva",
+                role: "user" // ou "adm"
+            };
+
+            // Personaliza a mensagem e ações com base no nível de acesso
+            const welcomeMessage = document.getElementById("welcome-message");
+            welcomeMessage.textContent = `Bem-vindo, ${userInfo.name}!`;
+
+            if (userInfo.role === "adm") {
+                const adminButton = document.createElement("a");
+                adminButton.href = "admin.html";
+                adminButton.textContent = "Ir para Administração";
+                adminButton.classList.add("admin-button");
+                document.querySelector(".button-container").appendChild(adminButton);
+            }
+        }
+    </script>
 </head>
-<body>
+<body onload="loadUserInfo()">
     <div class="container">
         <img src="../../public/images/logo2.jpg" alt="Logo da Empresa">
-        <h1>Bem-vindo</h1>
+        <h1 id="welcome-message">Bem-vindo</h1>
         <div class="button-container">
-            <a href="login.html">Login</a>
-            <a href="cadastro.html">Cadastro</a>
+            <a href="login.html">Sair</a>
         </div>
     </div>
 </body>

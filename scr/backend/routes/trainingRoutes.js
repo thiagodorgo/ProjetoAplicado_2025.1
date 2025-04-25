@@ -1,3 +1,8 @@
+/**
+ * Training Routes
+ * Defines the routes for managing trainings.
+ */
+
 const express = require('express');
 const router = express.Router();
 const {
