@@ -92,7 +92,7 @@ O repositório contém:
 
 📽️ Link para vídeo de até 3 minutos:  
 *(incluir link para o vídeo hospedado no YouTube, Google Drive, etc.)*
-
+https://youtu.be/IfMv24X_MBc?si=tkx_k8ZD-WgQH2oL
 Conteúdo:
 - Demonstração da interface
 - Explicação das tecnologias utilizadas
