@@ -90,7 +90,7 @@ O repositório contém:
 ## 🎥 Demonstração em Vídeo
 
 📽️ Link para o vídeo do projeto:  
-*([Link youtube](https://youtu.be/mIc3ssQc1Zw?si=_6WkVAcyIx-gjhmQ))*
+*([Link youtube](https://youtu.be/b3NgovGBpEQ?si=URBxX3hFvgGzq0To)*
 
 Conteúdo:
 - Demonstração da interface
