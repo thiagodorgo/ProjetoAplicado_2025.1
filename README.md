@@ -44,9 +44,8 @@ Uma aplicação desktop multiplataforma que permite a verificação da situaçã
 ## 🧱 Diagrama da Arquitetura
 
 ```
-[Planilha Excel] → [Módulo de Importação] → [SQLite DB]
-                                  ↓
-                            [Interface PyQt]
+![diagrama](https://github.com/user-attachments/assets/9360d277-61c0-4793-8b0d-6e4e99f5f9b1)
+
 ```
 
 - Interface desenvolvida com **PyQt5**
@@ -90,8 +89,8 @@ O repositório contém:
 
 ## 🎥 Demonstração em Vídeo
 
-📽️ Link para vídeo de até 3 minutos:  
-*(incluir link para o vídeo hospedado no YouTube, Google Drive, etc.)*
+📽️ Link para o vídeo do projeto:  
+*([Link youtube](https://youtu.be/mIc3ssQc1Zw?si=_6WkVAcyIx-gjhmQ))*
 
 Conteúdo:
 - Demonstração da interface
