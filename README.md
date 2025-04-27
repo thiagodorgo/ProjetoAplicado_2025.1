@@ -59,8 +59,8 @@ Uma aplicação desktop multiplataforma que permite a verificação da situaçã
 
 | Camada        | Tecnologia          | Justificativa                                         |
 |---------------|---------------------|--------------------------------------------------------|
-| Frontend      | PyQt                | Suporte a desktop, multiplataforma e fácil usabilidade |
-| Backend       | Python              | Simplicidade e robustez                                |
+| Frontend      | Html                | Suporte a desktop, multiplataforma e fácil usabilidade |
+| Backend       | Jsavascript         | Simplicidade e robustez                                |
 | Banco de Dados| SQLite              | Ideal para uso offline                                 |
 | Prototipação  | Figma               | Interface moderna e intuitiva                          |
 | Controle de Versão | GitHub         | Versionamento e colaboração                           |
@@ -70,7 +70,7 @@ Uma aplicação desktop multiplataforma que permite a verificação da situaçã
 ## 🖼️ Protótipo
 
 O protótipo das telas foi desenvolvido no Figma.  
-🔗 **[Acesse o protótipo interativo aqui](https://www.figma.com/design/i04F4VspFo5oIKTb2Zb20J/Tech-Solutions?node-id=0-1&p=f&t=uNOkMvmKtdb6Xsvp-0 ** 
+🔗 **[Acesse o protótipo interativo aqui](https://www.figma.com/design/i04F4VspFo5oIKTb2Zb20J/Tech-Solutions?node-id=0-1&p=f&t=uNOkMvmKtdb6Xsvp-0)** 
 
 ---
 
@@ -80,7 +80,7 @@ O protótipo das telas foi desenvolvido no Figma.
 
 O repositório contém:
 - Código-fonte da aplicação
-- Diagramas da arquitetura (.drawio, .png)
+- Diagramas da arquitetura (.drawio, .jpg)
 - Documentação técnica
 - Prototipação
 - Apresentação e vídeo da solução
