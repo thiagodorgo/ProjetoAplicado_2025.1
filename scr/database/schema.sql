@@ -6,16 +6,19 @@ CREATE TABLE Departments (
 );
 
 -- Tabela de Funcionários
-CREATE TABLE Employees (
+-- Código SQL para criar ou alterar a tabela de funcionários com suporte a fotos
+
+-- Verifica se a tabela já existe antes de criar
+CREATE TABLE IF NOT EXISTS employees (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
-    hire_date DATE NOT NULL,
-    department_id INT,
+    role VARCHAR(50) NOT NULL,
+    photo_url VARCHAR(255) DEFAULT NULL, -- Caminho da foto do funcionário
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (department_id) REFERENCES Departments(id) ON DELETE SET NULL
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
+
 
 -- Tabela de Cursos
 CREATE TABLE Courses (

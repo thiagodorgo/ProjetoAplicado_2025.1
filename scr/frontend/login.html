@@ -1,148 +1,216 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
-    <style>
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
-            background: url('../../public/images/fundo.jpg') no-repeat center center fixed;
-            background-size: cover;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+      font-family: 'Arial', sans-serif;
+      background: url('../../public/images/fundo.jpg') no-repeat center center fixed;
+      background-size: cover;
+    }
 
-        .login-container {
-            background: rgba(255, 255, 255, 0.9); /* Fundo branco translúcido */
-            padding: 20px 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            width: 100%;
-            max-width: 400px;
-            position: relative;
-        }
+    .login-container {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 30px 25px;
+      border-radius: 15px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+    }
 
-        .login-container img {
-            max-width: 250px;
-            height: auto;
-            margin-bottom: 20px;
-        }
+    .login-container img {
+      max-width: 220px;
+      height: auto;
+      margin-bottom: 20px;
+    }
 
-        form {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
+    h1 {
+      font-size: 26px;
+      color: #333;
+      margin-bottom: 20px;
+    }
 
-        label {
-            text-align: left;
-            font-weight: bold;
-            margin-bottom: 5px;
-            color: #555;
-        }
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin-bottom: 15px;
+    }
 
-        input[type="email"],
-        input[type="password"] {
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 16px;
-            width: 100%;
-        }
+    label {
+      text-align: left;
+      font-weight: bold;
+      color: #555;
+      font-size: 14px;
+    }
 
-        input[type="email"]:focus,
-        input[type="password"]:focus {
-            outline: none;
-            border-color: #007BFF;
-            box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
-        }
+    input[type="email"],
+    input[type="password"] {
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+    }
 
-        .btn-primary {
-            padding: 10px;
-            background-color: #007BFF;
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            cursor: pointer;
-        }
+    input:focus {
+      outline: none;
+      border-color: #007BFF;
+      box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+    }
 
-        .btn-primary:hover {
-            background-color: #0056b3;
-        }
+    .btn-primary {
+      padding: 12px;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
 
-        .error {
-            color: red;
-            font-size: 14px;
-            margin-top: 10px;
-        }
+    .btn-primary:hover {
+      background-color: #0056b3;
+    }
 
-        .success {
-            color: green;
-            font-size: 14px;
-            margin-top: 10px;
-        }
-    </style>
+    .social-login {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .social-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      border: none;
+      transition: background 0.3s;
+    }
+
+    .google-btn {
+      background-color: #db4437;
+      color: white;
+    }
+
+    .google-btn:hover {
+      background-color: #c1351d;
+    }
+
+    .facebook-btn {
+      background-color: #3b5998;
+      color: white;
+    }
+
+    .facebook-btn:hover {
+      background-color: #2d4373;
+    }
+
+    .error {
+      color: red;
+      font-size: 14px;
+      margin-top: 10px;
+    }
+
+    .success {
+      color: green;
+      font-size: 14px;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 480px) {
+      .login-container {
+        padding: 25px 20px;
+      }
+
+      h1 {
+        font-size: 22px;
+      }
+    }
+  </style>
 </head>
 <body>
-    <div class="login-container">
-        <img src="../../public/images/logo2.jpg" alt="Logo da Empresa">
-        <h1>Login</h1>
-        <form id="login-form">
-            <label for="email">Email</label>
-            <input type="email" id="email" name="email" placeholder="Digite seu email" required>
-            
-            <label for="password">Senha</label>
-            <input type="password" id="password" name="password" placeholder="Digite sua senha" required>
-            
-            <button type="submit" class="btn-primary">Entrar</button>
-        </form>
-        <div id="response-message"></div>
+
+  <div class="login-container">
+    <img src="../../public/images/logo2.jpg" alt="Logo da Empresa">
+    <h1>Login</h1>
+
+    <form id="login-form">
+      <div>
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" placeholder="Digite seu email" required>
+      </div>
+
+      <div>
+        <label for="password">Senha</label>
+        <input type="password" id="password" name="password" placeholder="Digite sua senha" required>
+      </div>
+
+      <button type="submit" class="btn-primary">Entrar</button>
+    </form>
+
+    <div class="social-login">
+      <button class="social-btn google-btn" onclick="loginGoogle()">Entrar com Google</button>
+      <button class="social-btn facebook-btn" onclick="loginFacebook()">Entrar com Facebook</button>
     </div>
 
-    <script>
-        document.getElementById('login-form').addEventListener('submit', async function (event) {
-            event.preventDefault();
+    <div id="response-message"></div>
+  </div>
 
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const responseMessage = document.getElementById('response-message');
+  <script>
+    document.getElementById('login-form').addEventListener('submit', async function (event) {
+      event.preventDefault();
 
-            try {
-                const response = await fetch('/api/login', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ email, password })
-                });
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const responseMessage = document.getElementById('response-message');
 
-                const data = await response.json();
-
-                if (response.ok) {
-                    responseMessage.className = 'success';
-                    responseMessage.innerText = 'Login realizado com sucesso!';
-                    // Redireciona para a página apropriada com base no papel do usuário
-                    if (data.role === 'admin') {
-                        window.location.href = '/admin.html';
-                    } else {
-                        window.location.href = '/user.html';
-                    }
-                } else {
-                    responseMessage.className = 'error';
-                    responseMessage.innerText = data.message || 'Erro ao realizar o login.';
-                }
-            } catch (error) {
-                responseMessage.className = 'error';
-                responseMessage.innerText = 'Erro no servidor. Tente novamente mais tarde.';
-            }
+      try {
+        const response = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
         });
-    </script>
+
+        const data = await response.json();
+
+        if (response.ok) {
+          responseMessage.className = 'success';
+          responseMessage.innerText = 'Login realizado com sucesso!';
+          window.location.href = data.role === 'admin' ? '/admin.html' : '/user.html';
+        } else {
+          responseMessage.className = 'error';
+          responseMessage.innerText = data.message || 'Erro ao realizar o login.';
+        }
+      } catch (error) {
+        responseMessage.className = 'error';
+        responseMessage.innerText = 'Erro no servidor. Tente novamente mais tarde.';
+      }
+    });
+
+    function loginGoogle() {
+      window.location.href = '/auth/google';
+    }
+
+    function loginFacebook() {
+      window.location.href = '/auth/facebook';
+    }
+  </script>
+
 </body>
 </html>

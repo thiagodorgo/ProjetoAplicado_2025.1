@@ -18,7 +18,7 @@
         }
 
         .container {
-            background: rgba(255, 255, 255, 0.9); /* Fundo branco translúcido */
+            background: rgba(255, 255, 255, 0.9);
             padding: 20px 30px;
             border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -26,47 +26,12 @@
             width: 100%;
             max-width: 400px;
             position: relative;
-            overflow: hidden; /* Garante que o conteúdo não ultrapasse o container */
         }
 
         .container img {
-            width: 100%; /* Faz o logo preencher toda a largura do container */
-            height: auto; /* Mantém as proporções do logo */
-            margin-bottom: 20px; /* Espaço abaixo do logo */
-        }
-
-        .tab-buttons {
-            display: flex;
-            justify-content: center;
+            width: 100%;
+            height: auto;
             margin-bottom: 20px;
-        }
-
-        .tab-buttons button {
-            flex: 1;
-            padding: 10px;
-            background-color: #007BFF;
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-
-        .tab-buttons button:hover {
-            background-color: #0056b3;
-        }
-
-        .tab-buttons button.active {
-            background-color: #0056b3;
-        }
-
-        .form-container {
-            display: none;
-        }
-
-        .form-container.active {
-            display: block;
         }
 
         form {
@@ -94,10 +59,6 @@
             width: 100%;
         }
 
-        input[type="file"] {
-            padding: 5px; /* Ajuste para o campo de arquivo */
-        }
-
         input[type="text"]:focus,
         input[type="email"]:focus,
         input[type="password"]:focus,
@@ -105,6 +66,17 @@
             outline: none;
             border-color: #007BFF;
             box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        input[type="checkbox"] {
+            width: auto;
+            margin: 0;
         }
 
         button[type="submit"] {
@@ -121,21 +93,23 @@
             background-color: #0056b3;
         }
 
-        .error, .success {
-            font-size: 14px;
+        .preview-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 15px;
+        }
+
+        .preview-image {
+            width: 100px;
+            height: 133px;
+            object-fit: cover;
+            border: 1px solid #ccc;
+            border-radius: 5px;
             margin-top: 10px;
-        }
-
-        .error {
-            color: red;
-        }
-
-        .success {
-            color: green;
         }
     </style>
     <script>
-        // Função para alternar o fundo aleatoriamente
         function setRandomBackground() {
             const backgrounds = [
                 '../../public/images/fundo.jpg',
@@ -146,58 +120,59 @@
             document.body.style.backgroundImage = `url('${backgrounds[randomIndex]}')`;
         }
 
-        // Chama a função ao carregar a página
-        window.onload = setRandomBackground;
-
-        // Alternar entre abas do formulário
-        function switchTab(tabId) {
-            const forms = document.querySelectorAll('.form-container');
-            forms.forEach(form => form.classList.remove('active'));
-
-            document.getElementById(tabId).classList.add('active');
-
-            const buttons = document.querySelectorAll('.tab-buttons button');
-            buttons.forEach(button => button.classList.remove('active'));
-
-            document.querySelector(`button[data-tab="${tabId}"]`).classList.add('active');
+        function previewImage(event) {
+            const preview = document.getElementById('preview-image');
+            const file = event.target.files[0];
+            
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                preview.style.display = 'none';
+            }
         }
+
+        window.onload = setRandomBackground;
     </script>
 </head>
 <body>
     <div class="container">
         <img src="../../public/images/logo2.jpg" alt="Logo da Empresa">
-        <div class="tab-buttons">
-            <button class="active" data-tab="user-form" onclick="switchTab('user-form')">Usuário</button>
-            <button data-tab="employee-form" onclick="switchTab('employee-form')">Funcionário</button>
-        </div>
-        <div id="user-form" class="form-container active">
-            <form>
-                <label for="username">Nome de Usuário</label>
-                <input type="text" id="username" name="username" placeholder="Digite seu nome" required>
-                
-                <label for="email">Email</label>
-                <input type="email" id="email" name="email" placeholder="Digite seu email" required>
-                
-                <label for="password">Senha</label>
-                <input type="password" id="password" name="password" placeholder="Digite sua senha" required>
-                
-                <button type="submit">Cadastrar</button>
-            </form>
-        </div>
-        <div id="employee-form" class="form-container">
-            <form>
-                <label for="employee-name">Nome</label>
-                <input type="text" id="employee-name" name="employee-name" placeholder="Digite o nome do funcionário" required>
-                
-                <label for="employee-email">Email</label>
-                <input type="email" id="employee-email" name="employee-email" placeholder="Digite o email" required>
-                
-                <label for="employee-photo">Foto</label>
-                <input type="file" id="employee-photo" name="employee-photo" accept="image/*" required>
-                
-                <button type="submit">Cadastrar Funcionário</button>
-            </form>
-        </div>
+        <form>
+            <label for="username">Nome de Usuário</label>
+            <input type="text" id="username" name="username" placeholder="Digite seu nome" required>
+            
+            <label for="cpf">CPF</label>
+            <input type="text" id="cpf" name="cpf" placeholder="Digite o CPF" required>
+            
+            <label for="matricula">Matrícula</label>
+            <input type="text" id="matricula" name="matricula" placeholder="Digite a Matrícula" required>
+            
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" placeholder="Digite seu email" required>
+            
+            <label for="password">Senha</label>
+            <input type="password" id="password" name="password" placeholder="Digite sua senha" required>
+            
+            <label for="photo">Foto</label>
+            <input type="file" id="photo" name="photo" accept="image/*" onchange="previewImage(event)" required>
+            
+            <div class="preview-container">
+                <span>Pré-visualização:</span>
+                <img id="preview-image" class="preview-image" style="display: none;" alt="Pré-visualização da Foto">
+            </div>
+            
+            <div class="checkbox-container">
+                <input type="checkbox" id="is-admin" name="is-admin">
+                <label for="is-admin" style="margin: 0;">Usuário é Administrador</label>
+            </div>
+            
+            <button type="submit">Cadastrar</button>
+        </form>
     </div>
 </body>
 </html>

@@ -1,243 +1,370 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel de Administração</title>
-    <style>
-        body {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 20px;
-            font-family: Arial, sans-serif;
-            background: url('../../public/images/fundo.jpg') no-repeat center center fixed;
-            background-size: cover;
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel de Administração</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      font-family: 'Arial', sans-serif;
+      background: url('../../public/images/fundo.jpg') no-repeat center center fixed;
+      background-size: cover;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      animation: fadeIn 1s ease-in-out; /* Animação de fade-in para o corpo */
+    }
+    
+    .admin-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-gap: 20px;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 12px;
+      padding: 30px;
+      width: 90vw;
+      max-width: 1200px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+      animation: slideUp 1s ease-in-out;
+    }
+
+    /* Animações para os quadrantes */
+    .quadrant {
+      padding: 20px;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      opacity: 0;
+      animation: fadeInUp 1s forwards;
+      align-items: center; /* Centraliza o conteúdo */
+    }
+
+    .quadrant:nth-child(1) {
+      animation-delay: 0.5s;
+    }
+    .quadrant:nth-child(2) {
+      animation-delay: 1s;
+    }
+    .quadrant:nth-child(3) {
+      animation-delay: 1.5s;
+    }
+    .quadrant:nth-child(4) {
+      animation-delay: 2s;
+    }
+
+    /* Tabela de funcionários (primeiro quadrante) */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      opacity: 0;
+      animation: fadeInUp 1s forwards;
+      animation-delay: 2.5s;
+    }
+    
+    th, td {
+      padding: 12px 15px;
+      text-align: center;
+      border-bottom: 1px solid #ddd;
+    }
+    
+    th:first-child,
+    td:first-child {
+      text-align: left;
+    }
+    
+    th {
+      background-color: #f5f5f5;
+      font-weight: bold;
+      font-size: 16px;
+    }
+    
+    tbody tr:nth-child(odd) {
+      background-color: #f9f9f9;
+    }
+    
+    tbody tr:nth-child(even) {
+      background-color: #e9e9e9;
+    }
+
+    /* Adicionando a coluna de fotos */
+    td img {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    /* Segundo quadrante: Mensagem motivacional, Calendário e Compromissos */
+    .message {
+      font-size: 18px;
+      font-weight: bold;
+      color: #007BFF;
+      text-align: center;
+      margin-bottom: 20px;
+      opacity: 0;
+      animation: fadeInUp 1s forwards;
+      animation-delay: 1s;
+    }
+
+    .commitments-table tbody tr:nth-child(odd) {
+      background-color: #f0f8ff;
+    }
+
+    .commitments-table tbody tr:nth-child(even) {
+      background-color: #eaf6ff;
+    }
+
+    /* Terceiro e Quarto quadrantes: Gráficos com dimensão fixa */
+    .charts {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      height: 100%;
+    }
+
+    .charts canvas {
+      width: 350px !important;
+      height: 350px !important;
+      opacity: 0;
+      animation: fadeInUp 1s forwards;
+    }
+
+    .chart-title {
+      font-size: 20px;
+      margin-bottom: 10px;
+      color: #333;
+      text-align: center;
+    }
+
+    /* Animação de fade-in para os elementos */
+    @keyframes fadeIn {
+      0% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+
+    @keyframes fadeInUp {
+      0% { opacity: 0; transform: translateY(20px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes slideUp {
+      0% { transform: translateY(20px); opacity: 0; }
+      100% { transform: translateY(0); opacity: 1; }
+    }
+  </style>
+  
+  <!-- Chart.js e Plugin datalabels -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+  
+  <script>
+    // Dados dos funcionários com fotos (primeiro quadrante)
+    const employees = [
+      { name: "João Silva", role: "Analista", trainings: 5, photo: "url('../../uploads/images/employee1.jpg')" },
+      { name: "Maria Oliveira", role: "Gerente", trainings: 3, photo: "url('../../uploads/images/employee2.jpg')" },
+      { name: "Carlos Santos", role: "Desenvolvedor", trainings: 8, photo: "url('../../uploads/images/employee3.jpg')" },
+      { name: "Ana Costa", role: "Designer", trainings: 4, photo: "url('../../uploads/images/employee4.jpg')" }
+    ];
+    
+    window.onload = function () {
+      renderEmployeeChart();
+      renderTrainingChart();
+      loadMotivationalMessage();
+      loadCalendarData();
+    };
+    
+    // Função para carregar mensagem motivacional via API do Quotable
+    function loadMotivationalMessage() {
+      fetch('https://api.quotable.io/random')
+        .then(response => response.json())
+        .then(data => {
+          const messageElem = document.getElementById('motivationalMessage');
+          messageElem.textContent = `"${data.content}" — ${data.author}`;
+        })
+        .catch(error => {
+          console.error('Erro ao carregar mensagem motivacional:', error);
+          document.getElementById('motivationalMessage').textContent = "Acredite no seu potencial!";
+        });
+    }
+    
+    // Função para carregar dados do calendário (exemplo fictício)
+    function loadCalendarData() {
+      const calendarElem = document.getElementById('calendar');
+      let calendarHTML = '<ul style="list-style: none; padding: 0;">';
+      calendarHTML += '<li>10/04/2025 - Reunião de Planejamento</li>';
+      calendarHTML += '<li>12/04/2025 - Revisão de Projeto</li>';
+      calendarHTML += '<li>15/04/2025 - Treinamento Interno</li>';
+      calendarHTML += '</ul>';
+      calendarElem.innerHTML = calendarHTML;
+    }
+    
+    // Gráfico de funcionários (terceiro quadrante)
+    function renderEmployeeChart() {
+      const ctx = document.getElementById('employeeChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: employees.map(emp => emp.name),
+          datasets: [{
+            label: 'Treinamentos Realizados',
+            data: employees.map(emp => emp.trainings),
+            backgroundColor: 'rgba(54, 162, 235, 0.7)'
+          }]
+        },
+        options: {
+          responsive: false,
+          maintainAspectRatio: false
         }
-
-        .admin-container {
-            background: rgba(255, 255, 255, 0.9);
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            width: 100%;
-            max-width: 1200px;
-        }
-
-        h1 {
-            color: #333;
-            margin-bottom: 20px;
-        }
-
-        .chart-container {
-            margin-top: 30px;
-        }
-
-        canvas {
-            max-width: 100%;
-            height: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 30px;
-        }
-
-        th, td {
-            padding: 10px;
-            border: 1px solid #ccc;
-            text-align: center;
-        }
-
-        th {
-            background-color: #f4f4f4;
-        }
-
-        .logout-button {
-            margin-top: 20px;
-            padding: 10px 20px;
-            background-color: #DC3545;
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            cursor: pointer;
-            text-decoration: none;
-        }
-
-        .logout-button:hover {
-            background-color: #a71d2a;
-        }
-    </style>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        // Função para alternar o fundo aleatoriamente
-        function setRandomBackground() {
-            const backgrounds = [
-                '../../public/images/fundo.jpg',
-                '../../public/images/fundo2.jpg',
-                '../../public/images/fundo3.jpg'
-            ];
-            const randomIndex = Math.floor(Math.random() * backgrounds.length);
-            document.body.style.backgroundImage = `url('${backgrounds[randomIndex]}')`;
-        }
-
-        // Dados fictícios para os gráficos e tabelas
-        const employees = [
-            { name: "João Silva", role: "Analista", trainings: 5 },
-            { name: "Maria Oliveira", role: "Gerente", trainings: 3 },
-            { name: "Carlos Santos", role: "Desenvolvedor", trainings: 8 },
-            { name: "Ana Costa", role: "Designer", trainings: 4 }
-        ];
-
-        const trainings = [
-            { name: "Segurança no Trabalho", participants: 10 },
-            { name: "Liderança", participants: 8 },
-            { name: "Desenvolvimento Ágil", participants: 12 },
-            { name: "Design Thinking", participants: 6 }
-        ];
-
-        window.onload = function () {
-            setRandomBackground();
-
-            // Renderizar gráficos
-            renderEmployeeChart();
-            renderTrainingChart();
-
-            // Renderizar tabelas
-            renderEmployeeTable();
-            renderTrainingTable();
-        };
-
-        function renderEmployeeChart() {
-            const ctx = document.getElementById('employeeChart').getContext('2d');
-            const employeeNames = employees.map(emp => emp.name);
-            const trainingCounts = employees.map(emp => emp.trainings);
-
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: employeeNames,
-                    datasets: [{
-                        label: 'Treinamentos Realizados',
-                        data: trainingCounts,
-                        backgroundColor: 'rgba(54, 162, 235, 0.6)',
-                        borderColor: 'rgba(54, 162, 235, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
-        }
-
-        function renderTrainingChart() {
-            const ctx = document.getElementById('trainingChart').getContext('2d');
-            const trainingNames = trainings.map(training => training.name);
-            const participants = trainings.map(training => training.participants);
-
-            new Chart(ctx, {
-                type: 'pie',
-                data: {
-                    labels: trainingNames,
-                    datasets: [{
-                        data: participants,
-                        backgroundColor: [
-                            'rgba(255, 99, 132, 0.6)',
-                            'rgba(54, 162, 235, 0.6)',
-                            'rgba(255, 206, 86, 0.6)',
-                            'rgba(75, 192, 192, 0.6)'
-                        ],
-                        borderColor: [
-                            'rgba(255, 99, 132, 1)',
-                            'rgba(54, 162, 235, 1)',
-                            'rgba(255, 206, 86, 1)',
-                            'rgba(75, 192, 192, 1)'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true
-                }
-            });
-        }
-
-        function renderEmployeeTable() {
-            const tableBody = document.getElementById('employeeTableBody');
-            employees.forEach(emp => {
-                const row = `<tr>
-                    <td>${emp.name}</td>
-                    <td>${emp.role}</td>
-                    <td>${emp.trainings}</td>
-                </tr>`;
-                tableBody.innerHTML += row;
-            });
-        }
-
-        function renderTrainingTable() {
-            const tableBody = document.getElementById('trainingTableBody');
-            trainings.forEach(training => {
-                const row = `<tr>
-                    <td>${training.name}</td>
-                    <td>${training.participants}</td>
-                </tr>`;
-                tableBody.innerHTML += row;
-            });
-        }
-    </script>
+      });
+    }
+    
+    // Gráfico de treinamentos (quarto quadrante)
+    function renderTrainingChart() {
+      const ctx = document.getElementById('trainingChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'pie',
+        data: {
+          labels: ["Segurança no Trabalho", "Liderança", "Desenvolvimento Ágil", "Design Thinking"],
+          datasets: [{
+            data: [10, 8, 12, 6],
+            backgroundColor: [
+              'rgba(255, 99, 132, 0.7)',
+              'rgba(54, 162, 235, 0.7)',
+              'rgba(255, 206, 86, 0.7)',
+              'rgba(75, 192, 192, 0.7)'
+            ]
+          }]
+        },
+        options: {
+          responsive: false,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: { font: { size: 14 } }
+            },
+            datalabels: {
+              formatter: (value, ctx) => {
+                let sum = 0;
+                const dataArr = ctx.chart.data.datasets[0].data;
+                dataArr.forEach(data => sum += data);
+                const percentage = (value * 100 / sum).toFixed(1) + "%";
+                return percentage;
+              },
+              color: '#fff',
+              font: {
+                weight: 'bold',
+                size: 14
+              }
+            }
+          }
+        },
+        plugins: [ChartDataLabels]
+      });
+    }
+  </script>
 </head>
 <body>
-    <div class="admin-container">
-        <h1>Painel de Administração</h1>
-
-        <!-- Gráficos -->
-        <div class="chart-container">
-            <h2>Treinamentos por Funcionário</h2>
-            <canvas id="employeeChart"></canvas>
-        </div>
-
-        <div class="chart-container">
-            <h2>Participantes por Treinamento</h2>
-            <canvas id="trainingChart"></canvas>
-        </div>
-
-        <!-- Tabelas -->
-        <h2>Funcionários</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Nome</th>
-                    <th>Cargo</th>
-                    <th>Treinamentos</th>
-                </tr>
-            </thead>
-            <tbody id="employeeTableBody"></tbody>
-        </table>
-
-        <h2>Treinamentos</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Nome</th>
-                    <th>Participantes</th>
-                </tr>
-            </thead>
-            <tbody id="trainingTableBody"></tbody>
-        </table>
-
-        <!-- Botão de Logout -->
-        <a href="login.html" class="logout-button">Sair</a>
+  <div class="admin-container">
+    <!-- Primeiro Quadrante: Funcionários -->
+    <div class="quadrant">
+      <h2>Funcionários</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Foto</th>
+            <th>Nome</th>
+            <th>Cargo</th>
+            <th>Treinamentos</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><img src="../../uploads/images/employee1.jpg" alt="João Silva"></td>
+            <td>João Silva</td>
+            <td>Analista</td>
+            <td>5</td>
+          </tr>
+          <tr>
+            <td><img src="../../uploads/images/employee2.jpg" alt="Maria Oliveira"></td>
+            <td>Maria Oliveira</td>
+            <td>Gerente</td>
+            <td>3</td>
+          </tr>
+          <tr>
+            <td><img src="../../uploads/images/employee3.jpg" alt="Carlos Santos"></td>
+            <td>Carlos Santos</td>
+            <td>Desenvolvedor</td>
+            <td>8</td>
+          </tr>
+          <tr>
+            <td><img src="../../uploads/images/employee4.jpg" alt="Ana Costa"></td>
+            <td>Ana Costa</td>
+            <td>Designer</td>
+            <td>4</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
+    
+    <!-- Segundo Quadrante: Mensagem Motivacional, Calendário e Compromissos -->
+    <div class="quadrant">
+      <!-- Mensagem motivacional -->
+      <div id="motivationalMessage" class="message">Carregando mensagem motivacional...</div>
+      
+      <!-- Calendário -->
+      <h3>Calendário</h3>
+      <div id="calendar">
+        <!-- Dados do calendário serão carregados dinamicamente -->
+      </div>
+      
+      <!-- Compromissos -->
+      <h3>Compromissos</h3>
+      <table class="commitments-table">
+        <thead>
+          <tr>
+            <th>Data</th>
+            <th>Horário</th>
+            <th>Descrição</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>26/04/2025</td>
+            <td>10:00</td>
+            <td>Reunião com a equipe</td>
+          </tr>
+          <tr>
+            <td>27/04/2025</td>
+            <td>14:30</td>
+            <td>Apresentação de resultados</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    
+    <!-- Terceiro Quadrante: Gráfico de Funcionários -->
+    <div class="quadrant charts">
+      <div class="chart-title">Funcionários x Treinamentos</div>
+      <canvas id="employeeChart"></canvas>
+    </div>
+    
+    <!-- Quarto Quadrante: Gráfico de Treinamentos -->
+    <div class="quadrant charts">
+      <div class="chart-title">Treinamentos Realizados</div>
+      <canvas id="trainingChart"></canvas>
+    </div>
+  </div>
 </body>
 </html>
