@@ -48,8 +48,8 @@ Uma aplicação desktop multiplataforma que permite a verificação da situaçã
 
 ```
 
-- Interface desenvolvida com **PyQt5**
-- Backend e lógica com **Python**
+- Interface desenvolvida com **html e Css**
+- Backend e lógica com **Javascript**
 - Banco de dados **SQLite** (leve e sem necessidade de servidor)
 - Prototipação com **Figma**
 
