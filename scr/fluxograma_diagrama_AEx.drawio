@@ -1,0 +1,114 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36" version="26.1.0" pages="2">
+  <diagram name="Fluxograma" id="flowchart-decision">
+    <mxGraphModel dx="1861" dy="420" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="2" value="Início" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;" parent="1" vertex="1">
+          <mxGeometry x="270" y="40" width="100" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="3" value="Tem conexão com a internet?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;" parent="1" vertex="1">
+          <mxGeometry x="240" y="130" width="160" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="4" value="Sincroniza dados com a API" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;" parent="1" vertex="1">
+          <mxGeometry x="480" y="140" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="5" value="Consulta dados locais (SQLite)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;" parent="1" vertex="1">
+          <mxGeometry x="-40" y="140" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="6" value="Usuário é autorizado?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;" parent="1" vertex="1">
+          <mxGeometry x="240" y="250" width="160" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="7" value="Permite edição/cadastro" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;" parent="1" vertex="1">
+          <mxGeometry x="480" y="260" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="8" value="Somente visualização dos dados" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;" parent="1" vertex="1">
+          <mxGeometry x="-40" y="260" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="9" value="Fim" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;" parent="1" vertex="1">
+          <mxGeometry x="270" y="410" width="100" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="10" style="endArrow=block;html=1;" parent="1" source="2" target="3" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="11" value="Sim" style="endArrow=block;html=1;" parent="1" source="3" target="4" edge="1">
+          <mxGeometry x="0.0715" y="5" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="12" value="Não" style="endArrow=block;html=1;" parent="1" source="3" target="5" edge="1">
+          <mxGeometry y="-10" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="13" style="endArrow=block;html=1;" parent="1" source="4" target="6" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="14" style="endArrow=block;html=1;" parent="1" source="5" target="6" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="15" value="Sim" style="endArrow=block;html=1;" parent="1" source="6" target="7" edge="1">
+          <mxGeometry x="0.8" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="16" value="Não" style="endArrow=block;html=1;" parent="1" source="6" target="8" edge="1">
+          <mxGeometry x="0.0909" y="-10" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="17" style="endArrow=block;html=1;" parent="1" source="7" target="9" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="18" style="endArrow=block;html=1;" parent="1" source="8" target="9" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="suqMdzIaj9b7L-KEt2KU" name="Diagrama">
+    <mxGraphModel dx="1034" dy="420" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="nJhwt2k94OiTP_XiDbr1-1" value="Usuário" style="shape=stickFigure;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="60" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="nJhwt2k94OiTP_XiDbr1-2" value="Aplicativo Mobile (Flutter)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;" vertex="1" parent="1">
+          <mxGeometry x="140" y="40" width="160" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="nJhwt2k94OiTP_XiDbr1-3" value="&lt;br&gt;&lt;div&gt;Banco de Dados Local (SQLite)&lt;/div&gt;" style="shape=cylinder;whiteSpace=wrap;html=1;fillColor=#d5e8d4;" vertex="1" parent="1">
+          <mxGeometry x="140" y="120" width="160" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="nJhwt2k94OiTP_XiDbr1-4" value="Módulo de Sincronização" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;" vertex="1" parent="1">
+          <mxGeometry x="140" y="200" width="160" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="nJhwt2k94OiTP_XiDbr1-5" value="API REST (Node.js/Firebase)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;" vertex="1" parent="1">
+          <mxGeometry x="340" y="200" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="nJhwt2k94OiTP_XiDbr1-6" value="&lt;br&gt;Banco em Nuvem (Firebase/PostgreSQL)" style="shape=cylinder;whiteSpace=wrap;html=1;fillColor=#e1d5e7;" vertex="1" parent="1">
+          <mxGeometry x="340" y="280" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="nJhwt2k94OiTP_XiDbr1-7" value="Painel Web Admin (HTML/CSS/JS)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;" vertex="1" parent="1">
+          <mxGeometry x="340" y="120" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="nJhwt2k94OiTP_XiDbr1-8" style="endArrow=block;html=1;" edge="1" parent="1" source="nJhwt2k94OiTP_XiDbr1-1" target="nJhwt2k94OiTP_XiDbr1-2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="nJhwt2k94OiTP_XiDbr1-9" style="endArrow=block;html=1;" edge="1" parent="1" source="nJhwt2k94OiTP_XiDbr1-2" target="nJhwt2k94OiTP_XiDbr1-3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="nJhwt2k94OiTP_XiDbr1-10" style="endArrow=block;html=1;" edge="1" parent="1" source="nJhwt2k94OiTP_XiDbr1-3" target="nJhwt2k94OiTP_XiDbr1-4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="nJhwt2k94OiTP_XiDbr1-11" style="endArrow=block;html=1;" edge="1" parent="1" source="nJhwt2k94OiTP_XiDbr1-4" target="nJhwt2k94OiTP_XiDbr1-5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="nJhwt2k94OiTP_XiDbr1-12" style="endArrow=block;html=1;" edge="1" parent="1" source="nJhwt2k94OiTP_XiDbr1-5" target="nJhwt2k94OiTP_XiDbr1-6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="nJhwt2k94OiTP_XiDbr1-13" style="endArrow=block;html=1;" edge="1" parent="1" source="nJhwt2k94OiTP_XiDbr1-5" target="nJhwt2k94OiTP_XiDbr1-7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
