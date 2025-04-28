@@ -44,7 +44,7 @@ Uma aplicação desktop multiplataforma que permite a verificação da situaçã
 ## 🧱 Diagrama da Arquitetura
 
 ```
-![diagrama](https://github.com/user-attachments/assets/9360d277-61c0-4793-8b0d-6e4e99f5f9b1)
+![diagrama](https://github.com/user-attachments/assets/6a9e7c7a-2e5a-4e2a-a3d2-f7159018d2e0)
 
 ```
 
@@ -57,13 +57,13 @@ Uma aplicação desktop multiplataforma que permite a verificação da situaçã
 
 ## 🧪 Tecnologias Utilizadas
 
-| Camada        | Tecnologia          | Justificativa                                         |
+| Camada        | Tecnologia          | Justificativa                                          |
 |---------------|---------------------|--------------------------------------------------------|
 | Frontend      | Html                | Suporte a desktop, multiplataforma e fácil usabilidade |
 | Backend       | Jsavascript         | Simplicidade e robustez                                |
 | Banco de Dados| SQLite              | Ideal para uso offline                                 |
 | Prototipação  | Figma               | Interface moderna e intuitiva                          |
-| Controle de Versão | GitHub         | Versionamento e colaboração                           |
+| Controle de Versão | GitHub         | Versionamento e colaboração                            |
 
 ---
 
