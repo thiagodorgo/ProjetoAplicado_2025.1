@@ -76,7 +76,7 @@ export default function Dashboard() {
         {/* Header */}
         <div>
           <h1 className="text-4xl font-bold text-gray-900 mb-2">Dashboard</h1>
-          <p className="text-gray-600">Visão geral do sistema de gerenciamento de cursos</p>
+          <p className="text-gray-600">Visão geral do sistema de treinamentos obrigatórios (NR-31)</p>
         </div>
 
         {/* Stats Grid */}
