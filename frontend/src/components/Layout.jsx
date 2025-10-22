@@ -63,12 +63,12 @@ export default function Layout({ children }) {
           {/* Logo */}
           <div className="p-6 border-b border-gray-200">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-teal-600 rounded-xl flex items-center justify-center">
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-xl flex items-center justify-center shadow-lg">
                 <Sprout className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-gray-900">FieldLearn</h1>
-                <p className="text-xs text-gray-500">Sistema de Cursos</p>
+                <h1 className="text-xl font-bold text-gray-900">TechSolutions</h1>
+                <p className="text-xs text-gray-500">Treinamentos NR-31</p>
               </div>
             </div>
           </div>
