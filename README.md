@@ -2,7 +2,11 @@
 
 ## 📋 Sobre o Projeto
 
-Sistema completo de gerenciamento de cursos obrigatórios para trabalhadores do campo, desenvolvido com **FastAPI + React + MongoDB**.
+**TechSolutions** é um sistema completo de gestão de treinamentos obrigatórios para trabalhadores rurais, desenvolvido com **FastAPI + React + MongoDB**, focado na conformidade com a **NR-31** (Norma Regulamentadora de Segurança e Saúde no Trabalho na Agricultura).
+
+### 🎯 Objetivo
+
+Reduzir acidentes no trabalho rural através da gestão eficiente de treinamentos obrigatórios, garantindo conformidade legal e segurança dos colaboradores em ambientes agrícolas.
 
 ### Funcionalidades Principais
 
