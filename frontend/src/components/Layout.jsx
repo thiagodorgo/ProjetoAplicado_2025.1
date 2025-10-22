@@ -74,9 +74,9 @@ export default function Layout({ children }) {
           </div>
 
           {/* User Info */}
-          <div className="p-6 border-b border-gray-200 bg-gradient-to-r from-green-50 to-teal-50">
+          <div className="p-6 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-green-600 to-teal-600 rounded-full flex items-center justify-center text-white font-semibold">
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-full flex items-center justify-center text-white font-semibold shadow-md">
                 {user?.nome?.charAt(0).toUpperCase()}
               </div>
               <div className="flex-1 min-w-0">
