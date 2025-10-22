@@ -479,8 +479,241 @@ async def delete_area(id_area: int, token: dict = Depends(verify_token)):
         raise HTTPException(status_code=404, detail="Área não encontrada")
     return {"message": "Área deletada com sucesso"}
 
-# [Similar routes for Cargos, Perfis, Colaboradores, Tags, Cursos, Trilhas, etc...]
-# Including all routes from previous implementation
+# =============== CARGO ROUTES ===============
+
+@api_router.post("/cargos", response_model=Cargo)
+async def create_cargo(cargo: CargoCreate, token: dict = Depends(verify_token)):
+    id_cargo = await get_next_id("cargos")
+    doc = {"id_cargo": id_cargo, **cargo.model_dump()}
+    await db.cargos.insert_one(doc)
+    return Cargo(**doc)
+
+@api_router.get("/cargos", response_model=List[Cargo])
+async def get_cargos(token: dict = Depends(verify_token)):
+    cargos = await db.cargos.find({}, {"_id": 0}).to_list(1000)
+    return cargos
+
+@api_router.delete("/cargos/{id_cargo}")
+async def delete_cargo(id_cargo: int, token: dict = Depends(verify_token)):
+    result = await db.cargos.delete_one({"id_cargo": id_cargo})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Cargo não encontrado")
+    return {"message": "Cargo deletado com sucesso"}
+
+# =============== PERFIL ROUTES ===============
+
+@api_router.post("/perfis", response_model=Perfil)
+async def create_perfil(perfil: PerfilCreate, token: dict = Depends(verify_token)):
+    id_perfil = await get_next_id("perfis")
+    doc = {"id_perfil": id_perfil, **perfil.model_dump()}
+    await db.perfis.insert_one(doc)
+    return Perfil(**doc)
+
+@api_router.get("/perfis", response_model=List[Perfil])
+async def get_perfis(token: dict = Depends(verify_token)):
+    perfis = await db.perfis.find({}, {"_id": 0}).to_list(1000)
+    return perfis
+
+# =============== COLABORADOR ROUTES ===============
+
+@api_router.get("/colaboradores", response_model=List[Colaborador])
+async def get_colaboradores(ativo: Optional[bool] = None, token: dict = Depends(verify_token)):
+    query = {}
+    if ativo is not None:
+        query["ativo"] = ativo
+    colaboradores = await db.colaboradores.find(query, {"_id": 0, "senha_hash": 0}).to_list(1000)
+    return colaboradores
+
+@api_router.get("/colaboradores/{id_colaborador}", response_model=Colaborador)
+async def get_colaborador(id_colaborador: int, token: dict = Depends(verify_token)):
+    colab = await db.colaboradores.find_one({"id_colaborador": id_colaborador}, {"_id": 0, "senha_hash": 0})
+    if not colab:
+        raise HTTPException(status_code=404, detail="Colaborador não encontrado")
+    return Colaborador(**colab)
+
+# =============== CURSO ROUTES ===============
+
+@api_router.post("/cursos", response_model=Curso)
+async def create_curso(curso: CursoCreate, token: dict = Depends(verify_token)):
+    id_curso = await get_next_id("cursos")
+    doc = {"id_curso": id_curso, **curso.model_dump()}
+    await db.cursos.insert_one(doc)
+    return Curso(**doc)
+
+@api_router.get("/cursos", response_model=List[Curso])
+async def get_cursos(tipo: Optional[TipoTreinamento] = None, token: dict = Depends(verify_token)):
+    query = {}
+    if tipo:
+        query["tipo_treinamento"] = tipo.value
+    cursos = await db.cursos.find(query, {"_id": 0}).to_list(1000)
+    return cursos
+
+@api_router.get("/cursos/{id_curso}", response_model=Curso)
+async def get_curso(id_curso: int, token: dict = Depends(verify_token)):
+    curso = await db.cursos.find_one({"id_curso": id_curso}, {"_id": 0})
+    if not curso:
+        raise HTTPException(status_code=404, detail="Curso não encontrado")
+    return Curso(**curso)
+
+@api_router.delete("/cursos/{id_curso}")
+async def delete_curso(id_curso: int, token: dict = Depends(verify_token)):
+    result = await db.cursos.delete_one({"id_curso": id_curso})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Curso não encontrado")
+    return {"message": "Curso deletado com sucesso"}
+
+# =============== TRILHA ROUTES ===============
+
+@api_router.post("/trilhas", response_model=Trilha)
+async def create_trilha(trilha: TrilhaCreate, token: dict = Depends(verify_token)):
+    id_trilha = await get_next_id("trilhas")
+    doc = {"id_trilha": id_trilha, **trilha.model_dump()}
+    await db.trilhas.insert_one(doc)
+    return Trilha(**doc)
+
+@api_router.get("/trilhas", response_model=List[Trilha])
+async def get_trilhas(obrigatoria: Optional[bool] = None, token: dict = Depends(verify_token)):
+    query = {}
+    if obrigatoria is not None:
+        query["obrigatoria"] = obrigatoria
+    trilhas = await db.trilhas.find(query, {"_id": 0}).to_list(1000)
+    return trilhas
+
+@api_router.delete("/trilhas/{id_trilha}")
+async def delete_trilha(id_trilha: int, token: dict = Depends(verify_token)):
+    result = await db.trilhas.delete_one({"id_trilha": id_trilha})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Trilha não encontrada")
+    return {"message": "Trilha deletada com sucesso"}
+
+# =============== REGRA OBRIGATORIO ROUTES ===============
+
+@api_router.post("/regras-obrigatorias", response_model=RegraObrigatorio)
+async def create_regra(regra: RegraObrigatorioCreate, token: dict = Depends(verify_token)):
+    if not regra.id_curso and not regra.id_trilha:
+        raise HTTPException(status_code=400, detail="Deve especificar id_curso ou id_trilha")
+    
+    id_regra = await get_next_id("regras_obrigatorias")
+    doc = {"id_regra": id_regra, **regra.model_dump()}
+    await db.regras_obrigatorias.insert_one(doc)
+    return RegraObrigatorio(**doc)
+
+@api_router.get("/regras-obrigatorias", response_model=List[RegraObrigatorio])
+async def get_regras(token: dict = Depends(verify_token)):
+    regras = await db.regras_obrigatorias.find({}, {"_id": 0}).to_list(1000)
+    return regras
+
+@api_router.delete("/regras-obrigatorias/{id_regra}")
+async def delete_regra(id_regra: int, token: dict = Depends(verify_token)):
+    result = await db.regras_obrigatorias.delete_one({"id_regra": id_regra})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Regra não encontrada")
+    return {"message": "Regra deletada com sucesso"}
+
+# =============== INSCRICAO ROUTES ===============
+
+@api_router.post("/inscricoes", response_model=Inscricao)
+async def create_inscricao(inscricao: InscricaoCreate, token: dict = Depends(verify_token)):
+    id_inscricao = await get_next_id("inscricoes")
+    doc = {
+        "id_inscricao": id_inscricao,
+        "id_colaborador": inscricao.id_colaborador,
+        "id_curso": inscricao.id_curso,
+        "data_inscricao": datetime.now(timezone.utc).isoformat(),
+        "data_prevista": inscricao.data_prevista.isoformat() if inscricao.data_prevista else None,
+        "status": StatusInscricao.PENDENTE.value,
+        "tipo_inscricao": inscricao.tipo_inscricao.value,
+        "data_conclusao": None,
+        "nota": None,
+        "aprovado": False
+    }
+    await db.inscricoes.insert_one(doc)
+    
+    # Create progresso automaticamente
+    id_progresso = await get_next_id("progressos")
+    await db.progressos.insert_one({
+        "id_progresso": id_progresso,
+        "id_inscricao": id_inscricao,
+        "percentual": 0.0,
+        "status": StatusInscricao.PENDENTE.value,
+        "data_conclusao": None,
+        "observacoes": None
+    })
+    
+    doc["data_inscricao"] = datetime.fromisoformat(doc["data_inscricao"])
+    if doc["data_prevista"]:
+        doc["data_prevista"] = datetime.fromisoformat(doc["data_prevista"])
+    return Inscricao(**doc)
+
+@api_router.get("/inscricoes", response_model=List[Inscricao])
+async def get_inscricoes(
+    id_colaborador: Optional[int] = None,
+    id_curso: Optional[int] = None,
+    status: Optional[StatusInscricao] = None,
+    token: dict = Depends(verify_token)
+):
+    query = {}
+    if id_colaborador:
+        query["id_colaborador"] = id_colaborador
+    if id_curso:
+        query["id_curso"] = id_curso
+    if status:
+        query["status"] = status.value
+    
+    inscricoes = await db.inscricoes.find(query, {"_id": 0}).to_list(1000)
+    for insc in inscricoes:
+        if isinstance(insc["data_inscricao"], str):
+            insc["data_inscricao"] = datetime.fromisoformat(insc["data_inscricao"])
+        if insc.get("data_prevista") and isinstance(insc["data_prevista"], str):
+            insc["data_prevista"] = datetime.fromisoformat(insc["data_prevista"])
+        if insc.get("data_conclusao") and isinstance(insc["data_conclusao"], str):
+            insc["data_conclusao"] = datetime.fromisoformat(insc["data_conclusao"])
+    return inscricoes
+
+# =============== CERTIFICADO ROUTES ===============
+
+@api_router.post("/certificados", response_model=Certificado)
+async def create_certificado(certificado: CertificadoCreate, token: dict = Depends(verify_token)):
+    inscricao = await db.inscricoes.find_one({"id_inscricao": certificado.id_inscricao})
+    if not inscricao:
+        raise HTTPException(status_code=404, detail="Inscrição não encontrada")
+    
+    id_certificado = await get_next_id("certificados")
+    import uuid
+    doc = {
+        "id_certificado": id_certificado,
+        "id_inscricao": certificado.id_inscricao,
+        "data_emissao": datetime.now(timezone.utc).isoformat(),
+        "data_validade": certificado.data_validade.isoformat() if certificado.data_validade else None,
+        "codigo_verificacao": str(uuid.uuid4())[:8].upper(),
+        "status": "ativo"
+    }
+    await db.certificados.insert_one(doc)
+    
+    doc["data_emissao"] = datetime.fromisoformat(doc["data_emissao"])
+    if doc["data_validade"]:
+        doc["data_validade"] = datetime.fromisoformat(doc["data_validade"])
+    return Certificado(**doc)
+
+@api_router.get("/certificados", response_model=List[Certificado])
+async def get_certificados(
+    id_inscricao: Optional[int] = None,
+    status: Optional[str] = None,
+    token: dict = Depends(verify_token)
+):
+    query = {}
+    if id_inscricao:
+        query["id_inscricao"] = id_inscricao
+    if status:
+        query["status"] = status
+        
+    certificados = await db.certificados.find(query, {"_id": 0}).to_list(1000)
+    for cert in certificados:
+        if isinstance(cert["data_emissao"], str):
+            cert["data_emissao"] = datetime.fromisoformat(cert["data_emissao"])
+        if cert.get("data_validade") and isinstance(cert["data_validade"], str):
+            cert["data_validade"] = datetime.fromisoformat(cert["data_validade"])
+    return certificados
 
 # =============== DASHBOARD & REPORTS ===============
 
