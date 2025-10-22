@@ -1,4 +1,4 @@
-# FieldLearn Hub - Sistema de Gerenciamento de Cursos Obrigatórios
+# TechSolutions - Sistema de Treinamentos Obrigatórios NR-31
 
 ## 📋 Sobre o Projeto
 
