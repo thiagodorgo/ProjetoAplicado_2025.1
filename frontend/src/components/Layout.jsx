@@ -100,7 +100,7 @@ export default function Layout({ children }) {
                     flex items-center gap-3 px-4 py-3 rounded-xl font-medium
                     transition-all duration-200
                     ${active
-                      ? 'bg-gradient-to-r from-green-500 to-teal-600 text-white shadow-md'
+                      ? 'bg-gradient-to-r from-blue-600 to-indigo-700 text-white shadow-md'
                       : 'text-gray-600 hover:bg-gray-100'
                     }
                   `}
