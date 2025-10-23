@@ -399,7 +399,7 @@ def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)) 
         raise HTTPException(status_code=401, detail="Token inválido")
 
 async def get_next_id(collection_name: str) -> int:
-    """Gera próximo ID sequencial para uma coleção"""
+    """Geramos IDs sequenciais para nossas coleções do MongoDB"""
     counter = await db.counters.find_one_and_update(
         {"_id": collection_name},
         {"$inc": {"seq": 1}},
