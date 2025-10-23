@@ -193,9 +193,24 @@ POST /api/auth/register
 - Email: `joao@example.com`
 - Senha: `senha123`
 
-### Opção 2: Via MongoDB Compass ou Shell
+**Passo 3**: Faça login no sistema:
 
-Conecte ao MongoDB e insira diretamente nas collections.
+Acesse `http://localhost:3000` e entre com:
+- Email: `joao@example.com`
+- Senha: `senha123`
+
+### Opção 2: Via MongoDB Shell
+
+```javascript
+// Conectar ao MongoDB
+mongosh mongodb://localhost:27017/
+
+// Usar o banco
+use techsolutions_treinamentos
+
+// Verificar conexão
+show dbs
+```
 
 ---
 
