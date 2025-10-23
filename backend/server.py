@@ -202,7 +202,7 @@ class Curso(CursoBase):
     id_curso: int
     model_config = ConfigDict(extra="ignore")
 
-# Trilha Model
+# Modelo de Trilha
 class TrilhaBase(BaseModel):
     titulo: str
     descricao: Optional[str] = None
@@ -222,7 +222,7 @@ class Trilha(TrilhaBase):
     id_trilha: int
     model_config = ConfigDict(extra="ignore")
 
-# Curso_Trilha Model
+# Modelo de Curso_Trilha
 class CursoTrilhaBase(BaseModel):
     id_curso: int
     id_trilha: int
@@ -237,7 +237,7 @@ class CursoTrilha(CursoTrilhaBase):
     id_curso_trilha: int
     model_config = ConfigDict(extra="ignore")
 
-# Regra Treinamento Obrigatório Model
+# Modelo de Regra de Treinamento Obrigatório
 class RegraObrigatorioBase(BaseModel):
     id_curso: Optional[int] = None
     id_trilha: Optional[int] = None
@@ -254,7 +254,7 @@ class RegraObrigatorio(RegraObrigatorioBase):
     id_regra: int
     model_config = ConfigDict(extra="ignore")
 
-# Inscricao Model
+# Modelo de Inscrição
 class InscricaoBase(BaseModel):
     id_colaborador: int
     id_curso: int
@@ -283,7 +283,7 @@ class Inscricao(InscricaoBase):
     id_inscricao: int
     model_config = ConfigDict(extra="ignore")
 
-# Progresso Model
+# Modelo de Progresso
 class ProgressoBase(BaseModel):
     id_inscricao: int
     percentual: float = 0.0
@@ -304,7 +304,7 @@ class Progresso(ProgressoBase):
     id_progresso: int
     model_config = ConfigDict(extra="ignore")
 
-# Evidencia Participacao Model
+# Modelo de Evidência de Participação
 class EvidenciaBase(BaseModel):
     id_inscricao: int
     tipo_evidencia: TipoEvidencia
@@ -322,7 +322,7 @@ class Evidencia(EvidenciaBase):
     id_evidencia: int
     model_config = ConfigDict(extra="ignore")
 
-# Certificado Model
+# Modelo de Certificado
 class CertificadoBase(BaseModel):
     id_inscricao: int
     data_emissao: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
@@ -338,7 +338,7 @@ class Certificado(CertificadoBase):
     id_certificado: int
     model_config = ConfigDict(extra="ignore")
 
-# Auditoria Model
+# Modelo de Auditoria
 class AuditoriaBase(BaseModel):
     id_colaborador_acao: int
     acao: AcaoAuditoria
