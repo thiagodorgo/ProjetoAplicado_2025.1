@@ -629,7 +629,7 @@ async def create_inscricao(inscricao: InscricaoCreate, token: dict = Depends(ver
     }
     await db.inscricoes.insert_one(doc)
     
-    # Create progresso automaticamente
+    # Criar progresso automaticamente
     id_progresso = await get_next_id("progressos")
     await db.progressos.insert_one({
         "id_progresso": id_progresso,
