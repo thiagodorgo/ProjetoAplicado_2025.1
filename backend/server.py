@@ -266,7 +266,7 @@ class RegraObrigatorio(RegraObrigatorioBase):
     id_regra: int
     model_config = ConfigDict(extra="ignore")
 
-# Modelo de Inscrição
+# Modelo de Inscrição - Controlamos as inscrições dos colaboradores nos cursos
 class InscricaoBase(BaseModel):
     id_colaborador: int
     id_curso: int
@@ -295,7 +295,7 @@ class Inscricao(InscricaoBase):
     id_inscricao: int
     model_config = ConfigDict(extra="ignore")
 
-# Modelo de Progresso
+# Modelo de Progresso - Acompanhamos o progresso de cada colaborador
 class ProgressoBase(BaseModel):
     id_inscricao: int
     percentual: float = 0.0
@@ -316,7 +316,7 @@ class Progresso(ProgressoBase):
     id_progresso: int
     model_config = ConfigDict(extra="ignore")
 
-# Modelo de Evidência de Participação
+# Modelo de Evidência de Participação - Registramos evidências de participação nos treinamentos
 class EvidenciaBase(BaseModel):
     id_inscricao: int
     tipo_evidencia: TipoEvidencia
