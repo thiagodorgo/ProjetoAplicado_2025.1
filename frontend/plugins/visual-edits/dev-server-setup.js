@@ -38,7 +38,7 @@ function setupDevServer(config) {
         return true;
       }
 
-      // Configuração CORS removida
+      // Removemos a configuração CORS externa aqui
 
       // Allow all appspot.com subdomains (for App Engine)
       if (origin.match(/^https:\/\/([a-zA-Z0-9-]+\.)*appspot\.com$/)) {
