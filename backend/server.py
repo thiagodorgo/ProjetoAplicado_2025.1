@@ -88,8 +88,10 @@ class AcaoAuditoria(str, Enum):
     SINCRONIZACAO = "SINCRONIZACAO"
 
 # =============== MODELOS ===============
+# Aqui definimos todos os nossos modelos de dados usando Pydantic
+# Cada modelo representa uma entidade do nosso sistema
 
-# Modelo de Área
+# Modelo de Área - Representa as áreas/departamentos da empresa
 class AreaBase(BaseModel):
     nome: str
     departamento: Optional[str] = None
