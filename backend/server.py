@@ -168,10 +168,10 @@ class Token(BaseModel):
     token_type: str
     colaborador: Colaborador
 
-# Modelo de Tag
+# Modelo de Tag - Usamos tags para categorizar cursos e trilhas
 class TagBase(BaseModel):
     nome: str
-    cor: Optional[str] = None
+    cor: Optional[str] = None  # Definimos cores para facilitar identificação visual
 
 class TagCreate(TagBase):
     pass
