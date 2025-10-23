@@ -466,6 +466,7 @@ async def login(credentials: ColaboradorLogin):
 # I'll include key routes to stay within limits
 
 # =============== ROTAS DE ÁREA ===============
+# Gerenciamos áreas e departamentos da empresa
 
 @api_router.post("/areas", response_model=Area)
 async def create_area(area: AreaCreate, token: dict = Depends(verify_token)):
