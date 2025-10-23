@@ -586,7 +586,7 @@ async def delete_trilha(id_trilha: int, token: dict = Depends(verify_token)):
         raise HTTPException(status_code=404, detail="Trilha não encontrada")
     return {"message": "Trilha deletada com sucesso"}
 
-# =============== REGRA OBRIGATORIO ROUTES ===============
+# =============== ROTAS DE REGRA OBRIGATÓRIA ===============
 
 @api_router.post("/regras-obrigatorias", response_model=RegraObrigatorio)
 async def create_regra(regra: RegraObrigatorioCreate, token: dict = Depends(verify_token)):
@@ -610,7 +610,7 @@ async def delete_regra(id_regra: int, token: dict = Depends(verify_token)):
         raise HTTPException(status_code=404, detail="Regra não encontrada")
     return {"message": "Regra deletada com sucesso"}
 
-# =============== INSCRICAO ROUTES ===============
+# =============== ROTAS DE INSCRIÇÃO ===============
 
 @api_router.post("/inscricoes", response_model=Inscricao)
 async def create_inscricao(inscricao: InscricaoCreate, token: dict = Depends(verify_token)):
@@ -670,7 +670,7 @@ async def get_inscricoes(
             insc["data_conclusao"] = datetime.fromisoformat(insc["data_conclusao"])
     return inscricoes
 
-# =============== CERTIFICADO ROUTES ===============
+# =============== ROTAS DE CERTIFICADO ===============
 
 @api_router.post("/certificados", response_model=Certificado)
 async def create_certificado(certificado: CertificadoCreate, token: dict = Depends(verify_token)):
@@ -715,7 +715,7 @@ async def get_certificados(
             cert["data_validade"] = datetime.fromisoformat(cert["data_validade"])
     return certificados
 
-# =============== DASHBOARD & REPORTS ===============
+# =============== DASHBOARD E RELATÓRIOS ===============
 
 @api_router.get("/dashboard/stats")
 async def get_dashboard_stats(token: dict = Depends(verify_token)):
