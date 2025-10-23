@@ -113,7 +113,7 @@ Agora você pode:
 ### MongoDB não conecta
 ```bash
 # Teste:
-mongosh mongodb://root:root@localhost:3305
+mongosh mongodb://localhost:27017/
 ```
 
 ### Backend com erro
