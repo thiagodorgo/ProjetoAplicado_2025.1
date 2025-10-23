@@ -92,7 +92,7 @@ class Area(AreaBase):
     id_area: int
     model_config = ConfigDict(extra="ignore")
 
-# Cargo Model
+# Modelo de Cargo
 class CargoBase(BaseModel):
     nome: str
     descricao: Optional[str] = None
