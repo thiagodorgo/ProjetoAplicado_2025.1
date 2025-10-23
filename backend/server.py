@@ -1,3 +1,12 @@
+"""
+TechSolutions - Sistema de Treinamentos Obrigatórios NR-31
+Projeto Aplicado 2 - Grupo 7
+Desenvolvedores: Thiago, Fabricio, Pettrin, Joseph
+
+Sistema completo de gestão de treinamentos obrigatórios para trabalhadores rurais
+com foco na conformidade NR-31 (Segurança e Saúde no Trabalho na Agricultura)
+"""
+
 from fastapi import FastAPI, APIRouter, HTTPException, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi import status as http_status
@@ -17,7 +26,7 @@ from enum import Enum
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
-# Conexão MongoDB
+# Configuramos nossa conexão com MongoDB
 mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ.get('DB_NAME', 'techsolutions_treinamentos')]
