@@ -495,6 +495,7 @@ async def delete_area(id_area: int, token: dict = Depends(verify_token)):
     return {"message": "Área deletada com sucesso"}
 
 # =============== ROTAS DE CARGO ===============
+# Gerenciamos os cargos e funções dos colaboradores
 
 @api_router.post("/cargos", response_model=Cargo)
 async def create_cargo(cargo: CargoCreate, token: dict = Depends(verify_token)):
@@ -516,6 +517,7 @@ async def delete_cargo(id_cargo: int, token: dict = Depends(verify_token)):
     return {"message": "Cargo deletado com sucesso"}
 
 # =============== ROTAS DE PERFIL ===============
+# Controlamos perfis de acesso e permissões
 
 @api_router.post("/perfis", response_model=Perfil)
 async def create_perfil(perfil: PerfilCreate, token: dict = Depends(verify_token)):
