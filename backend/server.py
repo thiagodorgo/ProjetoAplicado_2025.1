@@ -362,7 +362,7 @@ class Auditoria(AuditoriaBase):
     id_auditoria: int
     model_config = ConfigDict(extra="ignore")
 
-# =============== HELPER FUNCTIONS ===============
+# =============== FUNÇÕES AUXILIARES ===============
 
 def hash_password(password: str) -> str:
     return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
@@ -395,7 +395,7 @@ async def get_next_id(collection_name: str) -> int:
     )
     return counter["seq"] if counter else 1
 
-# =============== AUTH ROUTES ===============
+# =============== ROTAS DE AUTENTICAÇÃO ===============
 
 @api_router.post("/auth/register", response_model=Colaborador)
 async def register(colaborador: ColaboradorCreate):
@@ -451,7 +451,7 @@ async def login(credentials: ColaboradorLogin):
 # [Continuing with all CRUD routes from previous code...]
 # I'll include key routes to stay within limits
 
-# =============== AREA ROUTES ===============
+# =============== ROTAS DE ÁREA ===============
 
 @api_router.post("/areas", response_model=Area)
 async def create_area(area: AreaCreate, token: dict = Depends(verify_token)):
@@ -479,7 +479,7 @@ async def delete_area(id_area: int, token: dict = Depends(verify_token)):
         raise HTTPException(status_code=404, detail="Área não encontrada")
     return {"message": "Área deletada com sucesso"}
 
-# =============== CARGO ROUTES ===============
+# =============== ROTAS DE CARGO ===============
 
 @api_router.post("/cargos", response_model=Cargo)
 async def create_cargo(cargo: CargoCreate, token: dict = Depends(verify_token)):
