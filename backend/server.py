@@ -582,6 +582,7 @@ async def delete_curso(id_curso: int, token: dict = Depends(verify_token)):
     return {"message": "Curso deletado com sucesso"}
 
 # =============== ROTAS DE TRILHA ===============
+# Organizamos cursos em trilhas de desenvolvimento
 
 @api_router.post("/trilhas", response_model=Trilha)
 async def create_trilha(trilha: TrilhaCreate, token: dict = Depends(verify_token)):
@@ -606,6 +607,7 @@ async def delete_trilha(id_trilha: int, token: dict = Depends(verify_token)):
     return {"message": "Trilha deletada com sucesso"}
 
 # =============== ROTAS DE REGRA OBRIGATÓRIA ===============
+# Definimos regras de treinamentos obrigatórios por cargo/área
 
 @api_router.post("/regras-obrigatorias", response_model=RegraObrigatorio)
 async def create_regra(regra: RegraObrigatorioCreate, token: dict = Depends(verify_token)):
