@@ -632,6 +632,7 @@ async def delete_regra(id_regra: int, token: dict = Depends(verify_token)):
     return {"message": "Regra deletada com sucesso"}
 
 # =============== ROTAS DE INSCRIÇÃO ===============
+# Gerenciamos inscrições dos colaboradores nos cursos
 
 @api_router.post("/inscricoes", response_model=Inscricao)
 async def create_inscricao(inscricao: InscricaoCreate, token: dict = Depends(verify_token)):
@@ -692,6 +693,7 @@ async def get_inscricoes(
     return inscricoes
 
 # =============== ROTAS DE CERTIFICADO ===============
+# Emitimos e validamos certificados digitais
 
 @api_router.post("/certificados", response_model=Certificado)
 async def create_certificado(certificado: CertificadoCreate, token: dict = Depends(verify_token)):
