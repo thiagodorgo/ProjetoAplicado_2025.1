@@ -46,6 +46,7 @@ api_router = APIRouter(prefix="/api")
 security = HTTPBearer()
 
 # =============== ENUMERADORES ===============
+# Aqui definimos nossos enumeradores para padronizar os valores no sistema
 class Modalidade(str, Enum):
     PRESENCIAL = "presencial"
     ONLINE_SINCRONO = "online_sincrono"
