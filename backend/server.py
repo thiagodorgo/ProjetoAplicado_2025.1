@@ -760,7 +760,7 @@ async def get_dashboard_stats(token: dict = Depends(verify_token)):
         "taxa_conclusao": round((inscricoes_concluidas / total_inscricoes * 100) if total_inscricoes > 0 else 0, 2)
     }
 
-# Incluir router
+# Incluímos nosso router na aplicação
 app.include_router(api_router)
 
 app.add_middleware(
