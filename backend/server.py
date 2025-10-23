@@ -739,6 +739,7 @@ async def get_certificados(
     return certificados
 
 # =============== DASHBOARD E RELATÓRIOS ===============
+# Fornecemos estatísticas e relatórios do sistema
 
 @api_router.get("/dashboard/stats")
 async def get_dashboard_stats(token: dict = Depends(verify_token)):
