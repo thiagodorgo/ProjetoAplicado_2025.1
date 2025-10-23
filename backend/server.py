@@ -105,7 +105,7 @@ class Cargo(CargoBase):
     id_cargo: int
     model_config = ConfigDict(extra="ignore")
 
-# Perfil Model
+# Modelo de Perfil
 class PerfilBase(BaseModel):
     nome: str
     permissoes: List[str] = []  # Lista de permissões
