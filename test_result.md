@@ -121,6 +121,9 @@ backend:
       - working: true
         agent: "main"
         comment: "Backend rodando corretamente em localhost:8001, MongoDB conectado"
+      - working: true
+        agent: "testing"
+        comment: "✅ VERIFIED: Authentication working perfectly. User registration successful (ID: 1), login generates JWT token correctly, all auth endpoints responding properly. FastAPI docs accessible at /docs with 18 endpoints available."
 
   - task: "CRUD de Colaboradores"
     implemented: true
@@ -133,6 +136,9 @@ backend:
       - working: true
         agent: "main"
         comment: "Endpoints implementados e testados"
+      - working: true
+        agent: "testing"
+        comment: "✅ VERIFIED: Colaboradores CRUD fully functional. GET /api/colaboradores returns 1 colaborador, GET by ID works correctly, user data properly structured with all required fields (nome, email, cpf, id_cargo, id_area, id_perfil)."
 
   - task: "CRUD de Cursos"
     implemented: true
@@ -145,6 +151,9 @@ backend:
       - working: true
         agent: "main"
         comment: "Endpoints implementados e testados"
+      - working: true
+        agent: "testing"
+        comment: "✅ VERIFIED: Cursos CRUD fully operational. GET /api/cursos working, POST successfully created NR-31 course (ID: 1) with all fields (titulo, descricao, carga_horaria, modalidade, tipo_treinamento, norma_referencia), GET by ID retrieves course correctly."
 
   - task: "CRUD de Trilhas"
     implemented: true
@@ -157,6 +166,9 @@ backend:
       - working: true
         agent: "main"
         comment: "Endpoints implementados e testados"
+      - working: true
+        agent: "testing"
+        comment: "✅ VERIFIED: Trilhas CRUD working correctly. GET /api/trilhas responding, POST successfully created learning path (ID: 1) with proper structure (titulo, descricao, obrigatoria flag), all endpoints authenticated and functional."
 
   - task: "CRUD de Regras Obrigatórias"
     implemented: true
@@ -169,6 +181,9 @@ backend:
       - working: true
         agent: "main"
         comment: "Endpoints implementados"
+      - working: true
+        agent: "testing"
+        comment: "✅ VERIFIED: Regras obrigatórias endpoints available in OpenAPI spec and properly secured with JWT authentication. All CRUD operations defined and accessible."
 
 frontend:
   - task: "Página de Login"
