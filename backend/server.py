@@ -17,17 +17,17 @@ from enum import Enum
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
-# MongoDB connection
+# Conexão MongoDB
 mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ.get('DB_NAME', 'techsolutions_treinamentos')]
 
-# JWT Configuration
+# Configuração JWT
 JWT_SECRET = os.environ.get('JWT_SECRET', 'your-secret-key-change-in-production')
 JWT_ALGORITHM = 'HS256'
 JWT_EXPIRATION_HOURS = 24
 
-# Create the main app
+# Criar aplicação principal
 app = FastAPI(
     title="TechSolutions - Sistema de Treinamentos Obrigatórios",
     description="Gestão de treinamentos obrigatórios para trabalhadores rurais (NR-31)",
