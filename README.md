@@ -82,8 +82,8 @@ pip install -r requirements.txt
 
 ```env
 # backend/.env
-MONGO_URL="mongodb://root:root@localhost:3305"
-DB_NAME="curso_management"
+MONGO_URL="mongodb://localhost:27017/"
+DB_NAME="techsolutions_treinamentos"
 CORS_ORIGINS="http://localhost:3000"
 JWT_SECRET="seu-secret-key-aqui-troque-em-producao"
 ```
