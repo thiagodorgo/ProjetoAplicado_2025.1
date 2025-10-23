@@ -77,9 +77,9 @@ class AcaoAuditoria(str, Enum):
     LOGOUT = "LOGOUT"
     SINCRONIZACAO = "SINCRONIZACAO"
 
-# =============== MODELS ===============
+# =============== MODELOS ===============
 
-# Area Model
+# Modelo de Área
 class AreaBase(BaseModel):
     nome: str
     departamento: Optional[str] = None
