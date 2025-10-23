@@ -174,17 +174,19 @@ POST /api/perfis
 
 **Passo 2**: Registre um colaborador:
 
-```bash
-curl -X POST "http://localhost:8001/api/auth/register" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "nome": "João Silva",
-    "email": "joao@example.com",
-    "senha": "senha123",
-    "id_cargo": 1,
-    "id_area": 1,
-    "id_perfil": 1
-  }'
+**4. Registre um Colaborador:**
+```json
+POST /api/auth/register
+{
+  "nome": "João Silva",
+  "email": "joao@example.com",
+  "senha": "senha123",
+  "cpf": "123.456.789-00",
+  "id_cargo": 1,
+  "id_area": 1,
+  "id_perfil": 1,
+  "ativo": true
+}
 ```
 
 **Passo 3**: Faça login no sistema:
