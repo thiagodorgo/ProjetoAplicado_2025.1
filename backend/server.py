@@ -375,6 +375,7 @@ class Auditoria(AuditoriaBase):
     model_config = ConfigDict(extra="ignore")
 
 # =============== FUNÇÕES AUXILIARES ===============
+# Aqui criamos funções que utilizamos em várias partes do sistema
 
 def hash_password(password: str) -> str:
     return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
