@@ -78,8 +78,8 @@ Se todos os itens acima estão OK, siga para criar seu primeiro usuário:
 
 ### Erro: "Could not connect to MongoDB"
 - Verifique se o MongoDB está rodando
-- Confirme user/senha: `root/root`
-- Confirme porta: `3305`
+- Confirme porta: `27017` (porta padrão)
+- MongoDB deve estar sem autenticação
 
 ### Erro: "Port 8001 already in use"
 ```bash
