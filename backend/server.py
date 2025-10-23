@@ -334,7 +334,7 @@ class Evidencia(EvidenciaBase):
     id_evidencia: int
     model_config = ConfigDict(extra="ignore")
 
-# Modelo de Certificado
+# Modelo de Certificado - Emitimos e gerenciamos certificados digitais
 class CertificadoBase(BaseModel):
     id_inscricao: int
     data_emissao: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
@@ -350,7 +350,7 @@ class Certificado(CertificadoBase):
     id_certificado: int
     model_config = ConfigDict(extra="ignore")
 
-# Modelo de Auditoria
+# Modelo de Auditoria - Mantemos log completo de todas ações no sistema
 class AuditoriaBase(BaseModel):
     id_colaborador_acao: int
     acao: AcaoAuditoria
