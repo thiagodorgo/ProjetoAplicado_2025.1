@@ -104,11 +104,11 @@ class Area(AreaBase):
     id_area: int
     model_config = ConfigDict(extra="ignore")
 
-# Modelo de Cargo
+# Modelo de Cargo - Representa os cargos/funções dos colaboradores
 class CargoBase(BaseModel):
     nome: str
     descricao: Optional[str] = None
-    requer_nr31: bool = False  # Se cargo requer treinamento NR-31
+    requer_nr31: bool = False  # Indicamos se este cargo necessita treinamento NR-31 obrigatório
 
 class CargoCreate(CargoBase):
     pass
