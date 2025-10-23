@@ -36,7 +36,7 @@ app = FastAPI(
 api_router = APIRouter(prefix="/api")
 security = HTTPBearer()
 
-# =============== ENUMS ===============
+# =============== ENUMERADORES ===============
 class Modalidade(str, Enum):
     PRESENCIAL = "presencial"
     ONLINE_SINCRONO = "online_sincrono"
