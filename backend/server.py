@@ -129,7 +129,7 @@ class Perfil(PerfilBase):
     id_perfil: int
     model_config = ConfigDict(extra="ignore")
 
-# Modelo de Colaborador (Trabalhador Rural)
+# Modelo de Colaborador - Representa nossos trabalhadores rurais no sistema
 class ColaboradorBase(BaseModel):
     nome: str
     email: EmailStr
