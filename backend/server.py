@@ -117,10 +117,10 @@ class Cargo(CargoBase):
     id_cargo: int
     model_config = ConfigDict(extra="ignore")
 
-# Modelo de Perfil
+# Modelo de Perfil - Define os perfis de acesso ao sistema
 class PerfilBase(BaseModel):
     nome: str
-    permissoes: List[str] = []  # Lista de permissões
+    permissoes: List[str] = []  # Armazenamos a lista de permissões do perfil
 
 class PerfilCreate(PerfilBase):
     pass
