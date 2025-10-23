@@ -55,9 +55,9 @@ Você já tem instalado:
 ### Passo 1: Clone ou Baixe o Projeto
 
 ```bash
-# Se você tem o código no GitHub:
-git clone [URL-DO-REPOSITORIO]
-cd [NOME-DA-PASTA]
+# Clone o repositório:
+git clone https://github.com/thiagodorgo/ProjetoAplicado_2025.1.git
+cd ProjetoAplicado_2025.1
 
 # Ou baixe e extraia o ZIP do projeto
 ```
