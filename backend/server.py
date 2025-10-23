@@ -168,7 +168,7 @@ class Tag(TagBase):
     id_tag: int
     model_config = ConfigDict(extra="ignore")
 
-# Curso/Treinamento Model
+# Modelo de Curso/Treinamento
 class CursoBase(BaseModel):
     titulo: str
     descricao: Optional[str] = None
