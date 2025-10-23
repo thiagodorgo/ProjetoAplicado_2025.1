@@ -1,12 +1,15 @@
 # TechSolutions - Sistema de Treinamentos Obrigatórios NR-31
 
+**Projeto Aplicado 2 - Grupo 7**  
+**Desenvolvedores:** Thiago, Fabricio, Pettrin, Joseph
+
 ## 📋 Sobre o Projeto
 
-**TechSolutions** é um sistema completo de gestão de treinamentos obrigatórios para trabalhadores rurais, desenvolvido com **FastAPI + React + MongoDB**, focado na conformidade com a **NR-31** (Norma Regulamentadora de Segurança e Saúde no Trabalho na Agricultura).
+Desenvolvemos o **TechSolutions**, um sistema completo de gestão de treinamentos obrigatórios para trabalhadores rurais, usando **FastAPI + React + MongoDB**, focado na conformidade com a **NR-31** (Norma Regulamentadora de Segurança e Saúde no Trabalho na Agricultura).
 
-### 🎯 Objetivo
+### 🎯 Nosso Objetivo
 
-Reduzir acidentes no trabalho rural através da gestão eficiente de treinamentos obrigatórios, garantindo conformidade legal e segurança dos colaboradores em ambientes agrícolas.
+Reduzimos acidentes no trabalho rural através da gestão eficiente de treinamentos obrigatórios, garantindo conformidade legal e segurança dos colaboradores em ambientes agrícolas.
 
 ### Funcionalidades Principais
 
