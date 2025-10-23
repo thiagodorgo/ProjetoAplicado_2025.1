@@ -409,6 +409,7 @@ async def get_next_id(collection_name: str) -> int:
     return counter["seq"] if counter else 1
 
 # =============== ROTAS DE AUTENTICAÇÃO ===============
+# Implementamos login e registro seguro com JWT
 
 @api_router.post("/auth/register", response_model=Colaborador)
 async def register(colaborador: ColaboradorCreate):
