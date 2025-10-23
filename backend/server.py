@@ -214,7 +214,7 @@ class Curso(CursoBase):
     id_curso: int
     model_config = ConfigDict(extra="ignore")
 
-# Modelo de Trilha
+# Modelo de Trilha - Organizamos cursos em trilhas de aprendizagem
 class TrilhaBase(BaseModel):
     titulo: str
     descricao: Optional[str] = None
@@ -234,7 +234,7 @@ class Trilha(TrilhaBase):
     id_trilha: int
     model_config = ConfigDict(extra="ignore")
 
-# Modelo de Curso_Trilha
+# Modelo de Curso_Trilha - Gerenciamos a relação entre cursos e trilhas
 class CursoTrilhaBase(BaseModel):
     id_curso: int
     id_trilha: int
@@ -249,7 +249,7 @@ class CursoTrilha(CursoTrilhaBase):
     id_curso_trilha: int
     model_config = ConfigDict(extra="ignore")
 
-# Modelo de Regra de Treinamento Obrigatório
+# Modelo de Regra de Treinamento Obrigatório - Definimos quais treinamentos são obrigatórios
 class RegraObrigatorioBase(BaseModel):
     id_curso: Optional[int] = None
     id_trilha: Optional[int] = None
