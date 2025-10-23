@@ -500,7 +500,7 @@ async def delete_cargo(id_cargo: int, token: dict = Depends(verify_token)):
         raise HTTPException(status_code=404, detail="Cargo não encontrado")
     return {"message": "Cargo deletado com sucesso"}
 
-# =============== PERFIL ROUTES ===============
+# =============== ROTAS DE PERFIL ===============
 
 @api_router.post("/perfis", response_model=Perfil)
 async def create_perfil(perfil: PerfilCreate, token: dict = Depends(verify_token)):
@@ -514,7 +514,7 @@ async def get_perfis(token: dict = Depends(verify_token)):
     perfis = await db.perfis.find({}, {"_id": 0}).to_list(1000)
     return perfis
 
-# =============== COLABORADOR ROUTES ===============
+# =============== ROTAS DE COLABORADOR ===============
 
 @api_router.get("/colaboradores", response_model=List[Colaborador])
 async def get_colaboradores(ativo: Optional[bool] = None, token: dict = Depends(verify_token)):
@@ -531,7 +531,7 @@ async def get_colaborador(id_colaborador: int, token: dict = Depends(verify_toke
         raise HTTPException(status_code=404, detail="Colaborador não encontrado")
     return Colaborador(**colab)
 
-# =============== CURSO ROUTES ===============
+# =============== ROTAS DE CURSO ===============
 
 @api_router.post("/cursos", response_model=Curso)
 async def create_curso(curso: CursoCreate, token: dict = Depends(verify_token)):
@@ -562,7 +562,7 @@ async def delete_curso(id_curso: int, token: dict = Depends(verify_token)):
         raise HTTPException(status_code=404, detail="Curso não encontrado")
     return {"message": "Curso deletado com sucesso"}
 
-# =============== TRILHA ROUTES ===============
+# =============== ROTAS DE TRILHA ===============
 
 @api_router.post("/trilhas", response_model=Trilha)
 async def create_trilha(trilha: TrilhaCreate, token: dict = Depends(verify_token)):
