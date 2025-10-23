@@ -1,5 +1,5 @@
 
-# TechSolutions - Sistema de Treinamentos Obrigatórios NR-31
+# TechSolutions - Sistema de Treinamentos Obrigatórios
 
 **Projeto Aplicado 2 - Grupo 7**  
 **Desenvolvedores:** Thiago, Fabricio, Pettrin, Joseph
