@@ -141,23 +141,35 @@ Frontend rodando em: `http://localhost:3000`
 
 ### Opção 1: Via API (Recomendado)
 
-**Passo 1**: Crie as entidades base primeiro:
+**Passo 1**: Acesse a documentação Swagger:
 
-```bash
-# Crie uma Área
-curl -X POST "http://localhost:8001/api/areas" \
-  -H "Content-Type: application/json" \
-  -d '{"nome": "Campo", "departamento": "Produção"}'
+Abra `http://localhost:8001/docs` e execute na ordem:
 
-# Crie um Cargo
-curl -X POST "http://localhost:8001/api/cargos" \
-  -H "Content-Type: application/json" \
-  -d '{"nome": "Trabalhador Rural"}'
+**1. Crie uma Área:**
+```json
+POST /api/areas
+{
+  "nome": "Campo",
+  "departamento": "Produção"
+}
+```
 
-# Crie um Perfil
-curl -X POST "http://localhost:8001/api/perfis" \
-  -H "Content-Type: application/json" \
-  -d '{"nome": "Administrador"}'
+**2. Crie um Cargo:**
+```json
+POST /api/cargos
+{
+  "nome": "Trabalhador Rural",
+  "requer_nr31": true
+}
+```
+
+**3. Crie um Perfil:**
+```json
+POST /api/perfis
+{
+  "nome": "Administrador",
+  "permissoes": ["admin"]
+}
 ```
 
 **Passo 2**: Registre um colaborador:
