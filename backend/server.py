@@ -532,6 +532,7 @@ async def get_perfis(token: dict = Depends(verify_token)):
     return perfis
 
 # =============== ROTAS DE COLABORADOR ===============
+# Gerenciamos nossos trabalhadores rurais
 
 @api_router.get("/colaboradores", response_model=List[Colaborador])
 async def get_colaboradores(ativo: Optional[bool] = None, token: dict = Depends(verify_token)):
@@ -549,6 +550,7 @@ async def get_colaborador(id_colaborador: int, token: dict = Depends(verify_toke
     return Colaborador(**colab)
 
 # =============== ROTAS DE CURSO ===============
+# Criamos e gerenciamos os treinamentos obrigatórios
 
 @api_router.post("/cursos", response_model=Curso)
 async def create_curso(curso: CursoCreate, token: dict = Depends(verify_token)):
