@@ -6,7 +6,7 @@
 
 ```bash
 # No terminal, execute:
-mongosh mongodb://root:root@localhost:3305
+mongosh mongodb://localhost:27017/
 
 # Se conectou com sucesso, você verá:
 # Connected to MongoDB
