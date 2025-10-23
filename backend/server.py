@@ -95,7 +95,7 @@ class AcaoAuditoria(str, Enum):
 class AreaBase(BaseModel):
     nome: str
     departamento: Optional[str] = None
-    localizacao: Optional[str] = None  # Localização física da área rural
+    localizacao: Optional[str] = None  # Guardamos a localização física da área rural
 
 class AreaCreate(AreaBase):
     pass
