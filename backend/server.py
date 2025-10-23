@@ -180,14 +180,14 @@ class Tag(TagBase):
     id_tag: int
     model_config = ConfigDict(extra="ignore")
 
-# Modelo de Curso/Treinamento
+# Modelo de Curso/Treinamento - Núcleo do nosso sistema de treinamentos
 class CursoBase(BaseModel):
     titulo: str
     descricao: Optional[str] = None
     carga_horaria: int
     modalidade: Modalidade
     tipo_treinamento: TipoTreinamento
-    norma_referencia: Optional[str] = None  # Ex: "NR-31", "NR-12"
+    norma_referencia: Optional[str] = None  # Registramos a norma referência (ex: "NR-31", "NR-12")
     publico_alvo: Optional[str] = None
     instrutores: Optional[str] = None
     permite_auto_inscricao: bool = False
