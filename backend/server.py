@@ -156,7 +156,7 @@ class Token(BaseModel):
     token_type: str
     colaborador: Colaborador
 
-# Tag Model
+# Modelo de Tag
 class TagBase(BaseModel):
     nome: str
     cor: Optional[str] = None
