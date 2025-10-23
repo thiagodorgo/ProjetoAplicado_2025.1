@@ -7,7 +7,7 @@
 - ✅ Node.js instalado
 - ✅ Python instalado
 - ✅ VSCode instalado
-- ✅ MongoDB rodando em `localhost:3305` (user: root, senha: root)
+- ✅ MongoDB rodando em `localhost:27017` (sem autenticação)
 
 ---
 
