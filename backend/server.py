@@ -31,12 +31,12 @@ mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ.get('DB_NAME', 'techsolutions_treinamentos')]
 
-# Configuração JWT
+# Definimos as configurações JWT para autenticação
 JWT_SECRET = os.environ.get('JWT_SECRET', 'your-secret-key-change-in-production')
 JWT_ALGORITHM = 'HS256'
 JWT_EXPIRATION_HOURS = 24
 
-# Criar aplicação principal
+# Criamos nossa aplicação principal FastAPI
 app = FastAPI(
     title="TechSolutions - Sistema de Treinamentos Obrigatórios",
     description="Gestão de treinamentos obrigatórios para trabalhadores rurais (NR-31)",
