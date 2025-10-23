@@ -13,56 +13,90 @@ import { Plus, Settings, Trash2 } from 'lucide-react';
 
 export default function RegrasObrigatorias() {
   const [regras, setRegras] = useState([]);
+  // Opções pré-cadastradas para cargos e áreas
+  const cargos = [
+    { id_cargo: 1, nome: 'Administrador' },
+    { id_cargo: 2, nome: 'Instrutor' },
+    { id_cargo: 3, nome: 'Aluno' },
+    { id_cargo: 4, nome: 'Visitante' }
+  ];
+  const areas = [
+    { id_area: 1, nome: 'Recursos Humanos' },
+    { id_area: 2, nome: 'Tecnologia' },
+    { id_area: 3, nome: 'Financeiro' },
+    { id_area: 4, nome: 'Operações' }
+  ];
   const [cursos, setCursos] = useState([]);
-  const [cargos, setCargos] = useState([]);
-  const [areas, setAreas] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [trilhas, setTrilhas] = useState([]);
+  useEffect(() => {
+    console.log('Estado trilhas atualizado:', trilhas);
+  }, [trilhas]);
+  // Buscar cursos e trilhas da API ao abrir o formulário
+  useEffect(() => {
+    const fetchCursosTrilhas = async () => {
+      try {
+        const [cursosRes, trilhasRes] = await Promise.all([
+          axios.get(`${API}/cursos`),
+          axios.get(`${API}/trilhas`)
+        ]);
+        setCursos(cursosRes.data);
+        setTrilhas(trilhasRes.data);
+        console.log('Cursos recebidos:', cursosRes.data);
+        console.log('Trilhas recebidas:', trilhasRes.data);
+      } catch (error) {
+        toast.error('Erro ao carregar cursos ou trilhas');
+      }
+    };
+    fetchCursosTrilhas();
+  }, []);
+  const [loading, setLoading] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [formData, setFormData] = useState({
     id_curso: '',
+    id_trilha: '',
     id_cargo: '',
     id_area: '',
     validade_certificado_meses: ''
   });
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
+  // Função de carregamento das regras (reutilizável)
+  const fetchRegras = async () => {
     try {
-      const [regrasRes, cursosRes, cargosRes, areasRes] = await Promise.all([
-        axios.get(`${API}/regras-obrigatorias`),
-        axios.get(`${API}/cursos`),
-        axios.get(`${API}/cargos`),
-        axios.get(`${API}/areas`)
-      ]);
+      const regrasRes = await axios.get(`${API}/regras-obrigatorias`);
       setRegras(regrasRes.data);
-      setCursos(cursosRes.data);
-      setCargos(cargosRes.data);
-      setAreas(areasRes.data);
     } catch (error) {
-      toast.error('Erro ao carregar dados');
+      toast.error('Erro ao carregar regras obrigatórias');
     } finally {
       setLoading(false);
     }
   };
 
+  // Carregar regras ao montar o componente
+  React.useEffect(() => {
+    fetchRegras();
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!formData.id_curso && !formData.id_trilha) {
+      toast.error('Selecione um Curso ou uma Trilha');
+      return;
+    }
     try {
       await axios.post(`${API}/regras-obrigatorias`, {
-        id_curso: formData.id_curso ? parseInt(formData.id_curso) : null,
-        id_trilha: null,
+        id_curso: formData.id_curso ? parseInt(formData.id_curso) : undefined,
+        id_trilha: formData.id_trilha ? parseInt(formData.id_trilha) : undefined,
         id_cargo: formData.id_cargo ? parseInt(formData.id_cargo) : null,
         id_area: formData.id_area ? parseInt(formData.id_area) : null,
         validade_certificado_meses: parseInt(formData.validade_certificado_meses)
       });
       toast.success('Regra criada com sucesso!');
       setDialogOpen(false);
-      fetchData();
+      await fetchRegras();
       resetForm();
     } catch (error) {
+      // Log completo para ajudar no debug (inclui resposta do servidor quando disponível)
+      console.error('Erro ao criar regra:', error, error?.response?.data);
       toast.error(error.response?.data?.detail || 'Erro ao criar regra');
     }
   };
@@ -73,51 +107,36 @@ export default function RegrasObrigatorias() {
     try {
       await axios.delete(`${API}/regras-obrigatorias/${id}`);
       toast.success('Regra deletada com sucesso!');
-      fetchData();
+      await fetchRegras();
     } catch (error) {
       toast.error('Erro ao deletar regra');
     }
   };
 
-  const resetForm = () => {
-    setFormData({
-      id_curso: '',
-      id_cargo: '',
-      id_area: '',
-      validade_certificado_meses: ''
-    });
-  };
+const resetForm = () => {
+  setFormData({
+    id_curso: '',
+    id_trilha: '',
+    id_cargo: '',
+    id_area: '',
+    validade_certificado_meses: ''
+  });
+};
 
-  const getCursoNome = (id) => cursos.find(c => c.id_curso === id)?.titulo || `Curso ${id}`;
+  // Removido vínculo com cursos
   const getCargoNome = (id) => cargos.find(c => c.id_cargo === id)?.nome || `Cargo ${id}`;
   const getAreaNome = (id) => areas.find(a => a.id_area === id)?.nome || `Área ${id}`;
 
-  if (loading) {
-    return (
-      <Layout>
-        <div className="flex items-center justify-center h-96">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
-        </div>
-      </Layout>
-    );
-  }
 
   return (
     <Layout>
-      <div className="space-y-6 animate-fade-in">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">Regras Obrigatórias</h1>
-            <p className="text-gray-600">Configure treinamentos obrigatórios por cargo ou área</p>
-          </div>
+      <div className="container mx-auto py-8">
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-2xl font-bold">Regras Obrigatórias</h1>
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
-              <Button
-                className="bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 shadow-lg"
-                data-testid="create-regra-button"
-              >
-                <Plus className="w-5 h-5 mr-2" />
-                Nova Regra
+              <Button data-testid="open-regra-dialog">
+                <Plus className="w-4 h-4 mr-2" /> Nova Regra
               </Button>
             </DialogTrigger>
             <DialogContent>
@@ -125,19 +144,39 @@ export default function RegrasObrigatorias() {
                 <DialogTitle>Criar Nova Regra Obrigatória</DialogTitle>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-4">
+
                 <div>
-                  <Label htmlFor="id_curso">Curso *</Label>
+                  <Label htmlFor="id_curso">Curso</Label>
                   <Select
                     value={formData.id_curso}
-                    onValueChange={(value) => setFormData({ ...formData, id_curso: value })}
+                    onValueChange={(value) => setFormData({ ...formData, id_curso: value, id_trilha: '' })}
                   >
                     <SelectTrigger data-testid="regra-curso-select">
-                      <SelectValue placeholder="Selecione um curso" />
+                      <SelectValue placeholder="Selecione um curso (ou uma trilha)" />
                     </SelectTrigger>
                     <SelectContent>
                       {cursos.map(curso => (
                         <SelectItem key={curso.id_curso} value={curso.id_curso.toString()}>
                           {curso.titulo}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label htmlFor="id_trilha">Trilha</Label>
+                  <Select
+                    value={formData.id_trilha}
+                    onValueChange={(value) => setFormData({ ...formData, id_trilha: value, id_curso: '' })}
+                  >
+                    <SelectTrigger data-testid="regra-trilha-select">
+                      <SelectValue placeholder="Selecione uma trilha (ou um curso)" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {trilhas.map(trilha => (
+                        <SelectItem key={trilha.id_trilha} value={trilha.id_trilha.toString()}>
+                          {trilha.titulo}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -162,7 +201,6 @@ export default function RegrasObrigatorias() {
                     </SelectContent>
                   </Select>
                 </div>
-
                 <div>
                   <Label htmlFor="id_area">Área (opcional)</Label>
                   <Select
@@ -181,7 +219,6 @@ export default function RegrasObrigatorias() {
                     </SelectContent>
                   </Select>
                 </div>
-
                 <div>
                   <Label htmlFor="validade">Validade do Certificado (meses) *</Label>
                   <Input
@@ -193,7 +230,6 @@ export default function RegrasObrigatorias() {
                     data-testid="regra-validade-input"
                   />
                 </div>
-
                 <div className="flex gap-3 pt-4">
                   <Button type="submit" className="flex-1" data-testid="regra-submit-button">
                     Criar Regra
@@ -210,8 +246,11 @@ export default function RegrasObrigatorias() {
             </DialogContent>
           </Dialog>
         </div>
-
-        {regras.length === 0 ? (
+        {loading ? (
+          <div className="flex items-center justify-center h-96">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+          </div>
+        ) : regras.length === 0 ? (
           <Card className="border-0 shadow-lg">
             <CardContent className="p-12 text-center">
               <Settings className="w-16 h-16 mx-auto text-gray-300 mb-4" />
@@ -227,32 +266,22 @@ export default function RegrasObrigatorias() {
                   <CardTitle className="text-lg">Regra #{regra.id_regra}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <div>
-                    <p className="text-sm font-medium text-gray-500">Curso</p>
-                    <p className="text-base font-semibold text-gray-900">
-                      {regra.id_curso ? getCursoNome(regra.id_curso) : 'Não especificado'}
-                    </p>
-                  </div>
-
                   {regra.id_cargo && (
                     <div>
                       <p className="text-sm font-medium text-gray-500">Cargo</p>
                       <p className="text-base text-gray-900">{getCargoNome(regra.id_cargo)}</p>
                     </div>
                   )}
-
                   {regra.id_area && (
                     <div>
                       <p className="text-sm font-medium text-gray-500">Área</p>
                       <p className="text-base text-gray-900">{getAreaNome(regra.id_area)}</p>
                     </div>
                   )}
-
                   <div>
                     <p className="text-sm font-medium text-gray-500">Validade do Certificado</p>
                     <p className="text-base text-gray-900">{regra.validade_certificado_meses} meses</p>
                   </div>
-
                   <Button
                     variant="outline"
                     size="sm"

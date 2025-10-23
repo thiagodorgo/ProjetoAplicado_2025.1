@@ -1,4 +1,15 @@
 import React, { useState, useEffect } from 'react';
+// Função utilitária para checar se usuário é admin
+function isAdmin() {
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) return false;
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.colaborador?.perfil?.permissoes?.includes('admin');
+  } catch {
+    return false;
+  }
+}
 import axios from 'axios';
 import { API } from '@/App';
 import Layout from '@/components/Layout';
@@ -21,6 +32,7 @@ export default function Cursos() {
     descricao: '',
     carga_horaria: '',
     modalidade: 'presencial',
+    tipo_treinamento: '',
     publico_alvo: '',
     instrutores: '',
     permite_auto_inscricao: false
@@ -54,7 +66,36 @@ export default function Cursos() {
       fetchCursos();
       resetForm();
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Erro ao criar curso');
+      // Garante que qualquer resposta de erro (objeto, array ou string) seja exibida corretamente
+      let errMsg = 'Erro ao criar curso';
+      const data = error.response?.data;
+      if (typeof data === 'string') {
+        errMsg = data;
+      } else if (data?.detail) {
+        if (Array.isArray(data.detail)) {
+          // FastAPI/Pydantic validation errors usually vêm como array de objetos
+          errMsg = data.detail
+            .map((d) => {
+              // d.loc costuma ser algo como ["body", "titulo"]
+              let field = '';
+              if (Array.isArray(d.loc)) {
+                // remove chaves padrão como 'body', 'query', 'path', 'header', 'form'
+                const skip = ['body', 'query', 'path', 'header', 'form'];
+                field = d.loc.filter((p) => typeof p === 'string' && !skip.includes(p)).join('.');
+              }
+              const message = d.msg || (typeof d === 'string' ? d : JSON.stringify(d));
+              return field ? `${field}: ${message}` : message;
+            })
+            .join(' | ');
+        } else if (typeof data.detail === 'string') {
+          errMsg = data.detail;
+        } else if (typeof data.detail === 'object') {
+          errMsg = JSON.stringify(data.detail);
+        }
+      } else if (data) {
+        errMsg = JSON.stringify(data);
+      }
+      toast.error(errMsg);
     }
   };
 
@@ -76,6 +117,7 @@ export default function Cursos() {
       descricao: '',
       carga_horaria: '',
       modalidade: 'presencial',
+      tipo_treinamento: '',
       publico_alvo: '',
       instrutores: '',
       permite_auto_inscricao: false
@@ -110,6 +152,7 @@ export default function Cursos() {
     );
   }
 
+
   return (
     <Layout>
       <div className="space-y-6 animate-fade-in">
@@ -119,125 +162,140 @@ export default function Cursos() {
             <h1 className="text-4xl font-bold text-gray-900 mb-2">Cursos</h1>
             <p className="text-gray-600">Gerencie todos os cursos do sistema</p>
           </div>
-          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-            <DialogTrigger asChild>
-              <Button
-                className="bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 shadow-lg"
-                data-testid="create-curso-button"
-              >
-                <Plus className="w-5 h-5 mr-2" />
-                Novo Curso
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle>Criar Novo Curso</DialogTitle>
-              </DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <Label htmlFor="titulo">Título *</Label>
-                  <Input
-                    id="titulo"
-                    value={formData.titulo}
-                    onChange={(e) => setFormData({ ...formData, titulo: e.target.value })}
-                    required
-                    data-testid="curso-titulo-input"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="descricao">Descrição</Label>
-                  <Textarea
-                    id="descricao"
-                    value={formData.descricao}
-                    onChange={(e) => setFormData({ ...formData, descricao: e.target.value })}
-                    rows={3}
-                    data-testid="curso-descricao-input"
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
+          {/* Botão de adicionar curso sempre visível */}
+            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+              <DialogTrigger asChild>
+                <Button
+                  className="bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 shadow-lg"
+                  data-testid="create-curso-button"
+                >
+                  <Plus className="w-5 h-5 mr-2" />
+                  Novo Curso
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>Criar Novo Curso</DialogTitle>
+                </DialogHeader>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  {/* ...form fields... */}
                   <div>
-                    <Label htmlFor="carga_horaria">Carga Horária (horas) *</Label>
+                    <Label htmlFor="titulo">Título *</Label>
                     <Input
-                      id="carga_horaria"
-                      type="number"
-                      value={formData.carga_horaria}
-                      onChange={(e) => setFormData({ ...formData, carga_horaria: e.target.value })}
+                      id="titulo"
+                      value={formData.titulo}
+                      onChange={(e) => setFormData({ ...formData, titulo: e.target.value })}
                       required
-                      data-testid="curso-carga-input"
+                      data-testid="curso-titulo-input"
                     />
                   </div>
-
                   <div>
-                    <Label htmlFor="modalidade">Modalidade *</Label>
-                    <Select
-                      value={formData.modalidade}
-                      onValueChange={(value) => setFormData({ ...formData, modalidade: value })}
-                    >
-                      <SelectTrigger data-testid="curso-modalidade-select">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="presencial">Presencial</SelectItem>
-                        <SelectItem value="online_sincrono">Online Síncrono</SelectItem>
-                        <SelectItem value="online_assincrono">Online Assíncrono</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <Label htmlFor="descricao">Descrição</Label>
+                    <Textarea
+                      id="descricao"
+                      value={formData.descricao}
+                      onChange={(e) => setFormData({ ...formData, descricao: e.target.value })}
+                      rows={3}
+                      data-testid="curso-descricao-input"
+                    />
                   </div>
-                </div>
-
-                <div>
-                  <Label htmlFor="publico_alvo">Público Alvo</Label>
-                  <Input
-                    id="publico_alvo"
-                    value={formData.publico_alvo}
-                    onChange={(e) => setFormData({ ...formData, publico_alvo: e.target.value })}
-                    placeholder="Ex: Trabalhadores rurais"
-                    data-testid="curso-publico-input"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="instrutores">Instrutores</Label>
-                  <Input
-                    id="instrutores"
-                    value={formData.instrutores}
-                    onChange={(e) => setFormData({ ...formData, instrutores: e.target.value })}
-                    placeholder="Ex: João Silva, Maria Santos"
-                    data-testid="curso-instrutores-input"
-                  />
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    id="permite_auto_inscricao"
-                    checked={formData.permite_auto_inscricao}
-                    onChange={(e) => setFormData({ ...formData, permite_auto_inscricao: e.target.checked })}
-                    className="w-4 h-4 rounded border-gray-300"
-                    data-testid="curso-auto-inscricao-checkbox"
-                  />
-                  <Label htmlFor="permite_auto_inscricao" className="cursor-pointer">
-                    Permitir auto-inscrição
-                  </Label>
-                </div>
-
-                <div className="flex gap-3 pt-4">
-                  <Button type="submit" className="flex-1" data-testid="curso-submit-button">
-                    Criar Curso
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => setDialogOpen(false)}
-                  >
-                    Cancelar
-                  </Button>
-                </div>
-              </form>
-            </DialogContent>
-          </Dialog>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <Label htmlFor="carga_horaria">Carga Horária (horas) *</Label>
+                      <Input
+                        id="carga_horaria"
+                        type="number"
+                        value={formData.carga_horaria}
+                        onChange={(e) => setFormData({ ...formData, carga_horaria: e.target.value })}
+                        required
+                        data-testid="curso-carga-input"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="modalidade">Modalidade *</Label>
+                      <Select
+                        value={formData.modalidade}
+                        onValueChange={(value) => setFormData({ ...formData, modalidade: value })}
+                      >
+                        <SelectTrigger data-testid="curso-modalidade-select">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="presencial">Presencial</SelectItem>
+                          <SelectItem value="online_sincrono">Online Síncrono</SelectItem>
+                          <SelectItem value="online_assincrono">Online Assíncrono</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label htmlFor="tipo_treinamento">Tipo de Treinamento *</Label>
+                      <Select
+                        value={formData.tipo_treinamento}
+                        onValueChange={(value) => setFormData({ ...formData, tipo_treinamento: value })}
+                      >
+                        <SelectTrigger data-testid="curso-tipo-treinamento-select">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="nr31">NR31 - Segurança no Trabalho Rural</SelectItem>
+                          <SelectItem value="operacao_maquinas">Operação de Máquinas</SelectItem>
+                          <SelectItem value="agrotoxicos">Agrotóxicos</SelectItem>
+                          <SelectItem value="primeiros_socorros">Primeiros Socorros</SelectItem>
+                          <SelectItem value="prevencao_acidentes">Prevenção de Acidentes</SelectItem>
+                          <SelectItem value="outros">Outros</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <div>
+                    <Label htmlFor="publico_alvo">Público Alvo</Label>
+                    <Input
+                      id="publico_alvo"
+                      value={formData.publico_alvo}
+                      onChange={(e) => setFormData({ ...formData, publico_alvo: e.target.value })}
+                      placeholder="Ex: Trabalhadores rurais"
+                      data-testid="curso-publico-input"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="instrutores">Instrutores</Label>
+                    <Input
+                      id="instrutores"
+                      value={formData.instrutores}
+                      onChange={(e) => setFormData({ ...formData, instrutores: e.target.value })}
+                      placeholder="Ex: João Silva, Maria Santos"
+                      data-testid="curso-instrutores-input"
+                    />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="permite_auto_inscricao"
+                      checked={formData.permite_auto_inscricao}
+                      onChange={(e) => setFormData({ ...formData, permite_auto_inscricao: e.target.checked })}
+                      className="w-4 h-4 rounded border-gray-300"
+                      data-testid="curso-auto-inscricao-checkbox"
+                    />
+                    <Label htmlFor="permite_auto_inscricao" className="cursor-pointer">
+                      Permitir auto-inscrição
+                    </Label>
+                  </div>
+                  <div className="flex gap-3 pt-4">
+                    <Button type="submit" className="flex-1" data-testid="curso-submit-button">
+                      Criar Curso
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setDialogOpen(false)}
+                    >
+                      Cancelar
+                    </Button>
+                  </div>
+                </form>
+              </DialogContent>
+            </Dialog>
+          
         </div>
 
         {/* Cursos Grid */}
@@ -280,24 +338,54 @@ export default function Cursos() {
                   </div>
 
                   <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="flex-1"
-                      data-testid={`edit-curso-${curso.id_curso}`}
-                    >
-                      <Edit className="w-4 h-4 mr-1" />
-                      Editar
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleDelete(curso.id_curso)}
-                      className="text-red-600 hover:bg-red-50"
-                      data-testid={`delete-curso-${curso.id_curso}`}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+                    <>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="flex-1"
+                        data-testid={`edit-curso-${curso.id_curso}`}
+                      >
+                        <Edit className="w-4 h-4 mr-1" />
+                        Editar
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDelete(curso.id_curso)}
+                        className="text-red-600 hover:bg-red-50"
+                        data-testid={`delete-curso-${curso.id_curso}`}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="default"
+                        size="sm"
+                        onClick={async () => {
+                          try {
+                            const userData = JSON.parse(localStorage.getItem('user'));
+                            // Buscar inscrições do usuário
+                            const resp = await axios.get(`${API}/inscricoes?id_colaborador=${userData.id_colaborador}`);
+                            const jaInscrito = resp.data.some(insc => insc.id_curso === curso.id_curso);
+                            if (jaInscrito) {
+                              toast.warning('Você já está inscrito neste curso!');
+                              return;
+                            }
+                            await axios.post(`${API}/inscricoes`, {
+                              id_colaborador: userData.id_colaborador,
+                              id_curso: curso.id_curso,
+                              tipo_inscricao: 'manual'
+                            });
+                            toast.success('Inscrição realizada com sucesso!');
+                          } catch (error) {
+                            toast.error('Erro ao inscrever no curso');
+                          }
+                        }}
+                        className="flex-1 bg-green-600 text-white"
+                        data-testid={`inscrever-curso-${curso.id_curso}`}
+                      >
+                        Inscrever-se
+                      </Button>
+                    </>
                   </div>
                 </CardContent>
               </Card>

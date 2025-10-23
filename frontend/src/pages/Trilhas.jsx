@@ -19,10 +19,23 @@ export default function Trilhas() {
     titulo: '',
     descricao: ''
   });
+  const [cursos, setCursos] = useState([]);
+  const [selectedCursos, setSelectedCursos] = useState([]);
+
 
   useEffect(() => {
     fetchTrilhas();
+    fetchCursos();
   }, []);
+
+  const fetchCursos = async () => {
+    try {
+      const response = await axios.get(`${API}/cursos`);
+      setCursos(response.data);
+    } catch (error) {
+      toast.error('Erro ao carregar cursos');
+    }
+  };
 
   const fetchTrilhas = async () => {
     try {
@@ -35,19 +48,37 @@ export default function Trilhas() {
     }
   };
 
+  const [submitting, setSubmitting] = useState(false);
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (submitting) return;
+    setSubmitting(true);
     try {
-      await axios.post(`${API}/trilhas`, {
+      // Cria a trilha
+      const trilhaResp = await axios.post(`${API}/trilhas`, {
         ...formData,
         tags: []
       });
-      toast.success('Trilha criada com sucesso!');
+      const novaTrilha = trilhaResp.data;
+      // Vincula cursos selecionados
+      for (let i = 0; i < selectedCursos.length; i++) {
+        const id_curso = selectedCursos[i];
+        await axios.post(`${API}/curso_trilha`, {
+          id_curso,
+          id_trilha: novaTrilha.id_trilha,
+          ordem: i + 1,
+          obrigatorio: true
+        });
+      }
+      toast.success('Trilha criada e cursos vinculados!');
       setDialogOpen(false);
       fetchTrilhas();
       resetForm();
+      setSelectedCursos([]);
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Erro ao criar trilha');
+      toast.error(error.response?.data?.detail || 'Erro ao criar trilha ou vincular cursos');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -68,6 +99,7 @@ export default function Trilhas() {
       titulo: '',
       descricao: ''
     });
+    setSelectedCursos([]);
   };
 
   if (loading) {
@@ -125,9 +157,32 @@ export default function Trilhas() {
                   />
                 </div>
 
+
+                <div>
+                  <Label className="mb-1 block">Vincular a Cursos</Label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-40 overflow-y-auto border rounded p-2 bg-gray-50">
+                    {cursos.map((curso) => (
+                      <label key={curso.id_curso} className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={selectedCursos.includes(curso.id_curso)}
+                          onChange={e => {
+                            if (e.target.checked) {
+                              setSelectedCursos([...selectedCursos, curso.id_curso]);
+                            } else {
+                              setSelectedCursos(selectedCursos.filter(id => id !== curso.id_curso));
+                            }
+                          }}
+                        />
+                        <span>{curso.titulo}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
                 <div className="flex gap-3 pt-4">
-                  <Button type="submit" className="flex-1" data-testid="trilha-submit-button">
-                    Criar Trilha
+                  <Button type="submit" className="flex-1" data-testid="trilha-submit-button" disabled={submitting}>
+                    {submitting ? 'Criando...' : 'Criar Trilha'}
                   </Button>
                   <Button
                     type="button"

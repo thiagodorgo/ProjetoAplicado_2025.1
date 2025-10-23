@@ -1,11 +1,6 @@
-"""
-TechSolutions - Sistema de Treinamentos Obrigatórios NR-31
-Projeto Aplicado 2 - Grupo 7
-Desenvolvedores: Thiago, Fabricio, Pettrin, Joseph
 
-Sistema completo de gestão de treinamentos obrigatórios para trabalhadores rurais
-com foco na conformidade NR-31 (Segurança e Saúde no Trabalho na Agricultura)
-"""
+# Desenvolvedores: Thiago, Fabricio, Pettrin, Joseph
+# Sistema completo de gestão de treinamentos obrigatórios para trabalhadores
 
 from fastapi import FastAPI, APIRouter, HTTPException, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -24,10 +19,56 @@ import jwt
 from enum import Enum
 
 ROOT_DIR = Path(__file__).parent
-load_dotenv(ROOT_DIR / '.env')
+# Try to load .env robustly. Some environments or editors create files with BOM
+# or different encodings; try load_dotenv with utf-8 and fallback to manual parsing
+dotenv_path = ROOT_DIR / '.env'
+try:
+    # python-dotenv supports an encoding argument in newer versions
+    load_dotenv(dotenv_path, encoding='utf-8')
+except TypeError:
+    # Older versions may not accept encoding; fall back
+    load_dotenv(dotenv_path)
+
+# If MONGO_URL still isn't set, try reading the file manually using utf-8-sig
+if 'MONGO_URL' not in os.environ:
+    try:
+        text = dotenv_path.read_text(encoding='utf-8-sig')
+        for line in text.splitlines():
+            if not line or line.strip().startswith('#'):
+                continue
+            if '=' in line:
+                k, v = line.split('=', 1)
+                k = k.strip()
+                v = v.strip().strip('"').strip("'")
+                if k and k not in os.environ:
+                    os.environ[k] = v
+    except Exception:
+        # If reading fails, continue and let later code raise a helpful error
+        pass
 
 # Configuramos nossa conexão com MongoDB
-mongo_url = os.environ['MONGO_URL']
+raw_mongo = os.environ.get('MONGO_URL', '')
+# Some editors/encodings or accidental writes can inject BOM/newlines into the .env
+# or the environment may contain the whole file. Try to robustly extract the real
+# MongoDB URI by locating the 'mongodb' substring and taking that line/value.
+mongo_url = ''
+if raw_mongo:
+    # If the string contains 'mongodb', extract from there until the first whitespace/newline
+    lower = raw_mongo.lower()
+    idx = lower.find('mongodb')
+    if idx != -1:
+        # take from the 'mongodb' start to end of line
+        tail = raw_mongo[idx:]
+        mongo_url = tail.splitlines()[0].strip()
+    else:
+        # fallback: take first non-empty line
+        for line in raw_mongo.splitlines():
+            if line.strip():
+                mongo_url = line.strip()
+                break
+
+if not mongo_url:
+    raise RuntimeError('MONGO_URL environment variable is missing or empty')
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ.get('DB_NAME', 'techsolutions_treinamentos')]
 
@@ -399,7 +440,7 @@ def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)) 
         raise HTTPException(status_code=401, detail="Token inválido")
 
 async def get_next_id(collection_name: str) -> int:
-    """Geramos IDs sequenciais para nossas coleções do MongoDB"""
+    # Geramos IDs sequenciais para nossas coleções do MongoDB
     counter = await db.counters.find_one_and_update(
         {"_id": collection_name},
         {"$inc": {"seq": 1}},
@@ -465,37 +506,41 @@ async def login(credentials: ColaboradorLogin):
 # [Continuing with all CRUD routes from previous code...]
 # I'll include key routes to stay within limits
 
-# =============== ROTAS DE ÁREA ===============
-# Gerenciamos áreas e departamentos da empresa
 
-@api_router.post("/areas", response_model=Area)
-async def create_area(area: AreaCreate, token: dict = Depends(verify_token)):
-    id_area = await get_next_id("areas")
-    doc = {"id_area": id_area, **area.model_dump()}
-    await db.areas.insert_one(doc)
-    return Area(**doc)
 
-@api_router.get("/areas", response_model=List[Area])
-async def get_areas(token: dict = Depends(verify_token)):
-    areas = await db.areas.find({}, {"_id": 0}).to_list(1000)
-    return areas
+# =============== ROTAS DE CURSO_TRILHA ===============
+# Permite vincular cursos a trilhas
+from fastapi import Body
 
-@api_router.get("/areas/{id_area}", response_model=Area)
-async def get_area(id_area: int, token: dict = Depends(verify_token)):
-    area = await db.areas.find_one({"id_area": id_area}, {"_id": 0})
-    if not area:
-        raise HTTPException(status_code=404, detail="Área não encontrada")
-    return Area(**area)
-
-@api_router.delete("/areas/{id_area}")
-async def delete_area(id_area: int, token: dict = Depends(verify_token)):
-    result = await db.areas.delete_one({"id_area": id_area})
-    if result.deleted_count == 0:
-        raise HTTPException(status_code=404, detail="Área não encontrada")
-    return {"message": "Área deletada com sucesso"}
-
-# =============== ROTAS DE CARGO ===============
-# Gerenciamos os cargos e funções dos colaboradores
+# Endpoint para vincular curso a trilha
+@api_router.post("/curso_trilha")
+async def vincular_curso_trilha(
+    payload: dict = Body(...),
+    token: dict = Depends(verify_token)
+):
+    # payload: {id_curso, id_trilha, ordem, obrigatorio, id_prerequisito (opcional)}
+    id_curso = payload.get("id_curso")
+    id_trilha = payload.get("id_trilha")
+    ordem = payload.get("ordem", 1)
+    obrigatorio = payload.get("obrigatorio", True)
+    id_prerequisito = payload.get("id_prerequisito")
+    if not id_curso or not id_trilha:
+        raise HTTPException(status_code=400, detail="id_curso e id_trilha são obrigatórios")
+    # Gera novo id_curso_trilha
+    id_curso_trilha = await get_next_id("curso_trilha")
+    doc = {
+        "id_curso_trilha": id_curso_trilha,
+        "id_curso": id_curso,
+        "id_trilha": id_trilha,
+        "ordem": ordem,
+        "obrigatorio": obrigatorio,
+    }
+    if id_prerequisito:
+        doc["id_prerequisito"] = id_prerequisito
+    result = await db.curso_trilha.insert_one(doc)
+    if '_id' in doc:
+        del doc['_id']
+    return {"message": "Curso vinculado à trilha com sucesso", **doc}
 
 @api_router.post("/cargos", response_model=Cargo)
 async def create_cargo(cargo: CargoCreate, token: dict = Depends(verify_token)):
@@ -554,6 +599,7 @@ async def get_colaborador(id_colaborador: int, token: dict = Depends(verify_toke
 
 @api_router.post("/cursos", response_model=Curso)
 async def create_curso(curso: CursoCreate, token: dict = Depends(verify_token)):
+    # Permissão aberta para todos os usuários
     id_curso = await get_next_id("cursos")
     doc = {"id_curso": id_curso, **curso.model_dump()}
     await db.cursos.insert_one(doc)
@@ -576,16 +622,19 @@ async def get_curso(id_curso: int, token: dict = Depends(verify_token)):
 
 @api_router.delete("/cursos/{id_curso}")
 async def delete_curso(id_curso: int, token: dict = Depends(verify_token)):
+    # Permissão aberta para todos os usuários
     result = await db.cursos.delete_one({"id_curso": id_curso})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Curso não encontrado")
     return {"message": "Curso deletado com sucesso"}
+
 
 # =============== ROTAS DE TRILHA ===============
 # Organizamos cursos em trilhas de desenvolvimento
 
 @api_router.post("/trilhas", response_model=Trilha)
 async def create_trilha(trilha: TrilhaCreate, token: dict = Depends(verify_token)):
+    # Permissão aberta para todos os usuários
     id_trilha = await get_next_id("trilhas")
     doc = {"id_trilha": id_trilha, **trilha.model_dump()}
     await db.trilhas.insert_one(doc)
@@ -599,8 +648,19 @@ async def get_trilhas(obrigatoria: Optional[bool] = None, token: dict = Depends(
     trilhas = await db.trilhas.find(query, {"_id": 0}).to_list(1000)
     return trilhas
 
+@api_router.get("/cursos/{id_curso}/trilhas", response_model=List[Trilha])
+async def get_trilhas_do_curso(id_curso: int, token: dict = Depends(verify_token)):
+    # Busca todos os ids de trilha associados ao curso
+    curso_trilhas = await db.curso_trilha.find({"id_curso": id_curso}, {"_id": 0, "id_trilha": 1}).to_list(100)
+    trilha_ids = [ct["id_trilha"] for ct in curso_trilhas]
+    if not trilha_ids:
+        return []
+    trilhas = await db.trilhas.find({"id_trilha": {"$in": trilha_ids}}, {"_id": 0}).to_list(100)
+    return trilhas
+
 @api_router.delete("/trilhas/{id_trilha}")
 async def delete_trilha(id_trilha: int, token: dict = Depends(verify_token)):
+    # Permissão aberta para todos os usuários
     result = await db.trilhas.delete_one({"id_trilha": id_trilha})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Trilha não encontrada")
@@ -766,7 +826,7 @@ app.include_router(api_router)
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
-    allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','),
+    allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -780,6 +840,34 @@ logger = logging.getLogger(__name__)
 @app.on_event("shutdown")
 async def shutdown_db_client():
     client.close()
+
+
+@api_router.post("/curso_trilha")
+async def vincular_curso_trilha(
+    payload: dict = Body(...),
+    token: dict = Depends(verify_token)
+):
+    # payload: {id_curso, id_trilha, ordem, obrigatorio, id_prerequisito (opcional)}
+    id_curso = payload.get("id_curso")
+    id_trilha = payload.get("id_trilha")
+    ordem = payload.get("ordem", 1)
+    obrigatorio = payload.get("obrigatorio", True)
+    id_prerequisito = payload.get("id_prerequisito")
+    if not id_curso or not id_trilha:
+        raise HTTPException(status_code=400, detail="id_curso e id_trilha são obrigatórios")
+    # Gera novo id_curso_trilha
+    id_curso_trilha = await get_next_id("curso_trilha")
+    doc = {
+        "id_curso_trilha": id_curso_trilha,
+        "id_curso": id_curso,
+        "id_trilha": id_trilha,
+        "ordem": ordem,
+        "obrigatorio": obrigatorio,
+    }
+    if id_prerequisito:
+        doc["id_prerequisito"] = id_prerequisito
+    await db.curso_trilha.insert_one(doc)
+    return {"message": "Curso vinculado à trilha com sucesso", **doc}
 
 @api_router.get("/")
 async def root():
