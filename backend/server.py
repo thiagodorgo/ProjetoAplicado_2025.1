@@ -17,6 +17,8 @@ from datetime import datetime, timezone, timedelta
 import bcrypt
 import jwt
 from enum import Enum
+import unicodedata
+from pymongo.errors import DuplicateKeyError
 
 ROOT_DIR = Path(__file__).parent
 # Try to load .env robustly. Some environments or editors create files with BOM
@@ -449,6 +451,24 @@ async def get_next_id(collection_name: str) -> int:
     )
     return counter["seq"] if counter else 1
 
+# Normaliza título para comparação/índice case/acento-insensível
+def slugify_title(t: str) -> str:
+    if not t:
+        return ""
+    t = t.strip().lower()
+    t = unicodedata.normalize("NFKD", t)
+    t = "".join(ch for ch in t if not unicodedata.combining(ch))
+    cleaned = []
+    for ch in t:
+        if ch.isalnum():
+            cleaned.append(ch)
+        elif ch.isspace() or ch in "-_./":
+            cleaned.append("-")
+    s = "".join(cleaned)
+    while "--" in s:
+        s = s.replace("--", "-")
+    return s.strip("-")
+
 # =============== ROTAS DE AUTENTICAÇÃO ===============
 # Implementamos login e registro seguro com JWT
 
@@ -601,9 +621,22 @@ async def get_colaborador(id_colaborador: int, token: dict = Depends(verify_toke
 async def create_curso(curso: CursoCreate, token: dict = Depends(verify_token)):
     # Permissão aberta para todos os usuários
     id_curso = await get_next_id("cursos")
-    doc = {"id_curso": id_curso, **curso.model_dump()}
-    await db.cursos.insert_one(doc)
-    return Curso(**doc)
+    data = curso.model_dump()
+    # Converter enums para valores string antes de salvar
+    if isinstance(data.get("modalidade"), Enum):
+        data["modalidade"] = data["modalidade"].value
+    if isinstance(data.get("tipo_treinamento"), Enum):
+        data["tipo_treinamento"] = data["tipo_treinamento"].value
+
+    doc = {"id_curso": id_curso, **data}
+    # slug para unicidade por (titulo, modalidade)
+    doc["slug"] = slugify_title(doc.get("titulo", ""))
+    try:
+        await db.cursos.insert_one(doc)
+    except DuplicateKeyError:
+        raise HTTPException(status_code=409, detail="Já existe um curso com este título nesta modalidade.")
+    # Remover campos extras ao responder, Pydantic ignora extras
+    return Curso(**{k: v for k, v in doc.items() if k != "slug"})
 
 @api_router.get("/cursos", response_model=List[Curso])
 async def get_cursos(tipo: Optional[TipoTreinamento] = None, token: dict = Depends(verify_token)):
@@ -619,6 +652,51 @@ async def get_curso(id_curso: int, token: dict = Depends(verify_token)):
     if not curso:
         raise HTTPException(status_code=404, detail="Curso não encontrado")
     return Curso(**curso)
+
+@api_router.put("/cursos/{id_curso}", response_model=Curso)
+async def update_curso(id_curso: int, update: CursoUpdate, token: dict = Depends(verify_token)):
+    existing = await db.cursos.find_one({"id_curso": id_curso})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Curso não encontrado")
+
+    data = update.model_dump(exclude_unset=True)
+    # Converter enums para seus valores string antes de salvar
+    if "modalidade" in data and data["modalidade"] is not None:
+        try:
+            data["modalidade"] = data["modalidade"].value
+        except AttributeError:
+            pass
+    if "tipo_treinamento" in data and data["tipo_treinamento"] is not None:
+        try:
+            data["tipo_treinamento"] = data["tipo_treinamento"].value
+        except AttributeError:
+            pass
+    if "carga_horaria" in data and data["carga_horaria"] is not None:
+        # garantir tipo numérico inteiro
+        try:
+            data["carga_horaria"] = int(data["carga_horaria"])
+        except (TypeError, ValueError):
+            raise HTTPException(status_code=400, detail="carga_horaria inválida")
+
+    # Se o título mudar, recalcula slug; se modalidade mudar, a combinação slug+modalidade muda
+    new_title = data.get("titulo")
+    if new_title is not None:
+        data["slug"] = slugify_title(new_title)
+    elif existing.get("slug") is None and existing.get("titulo"):
+        # backfill slug se ainda não existir
+        data["slug"] = slugify_title(existing.get("titulo"))
+
+    if not data:
+        # Nada para atualizar
+        doc = await db.cursos.find_one({"id_curso": id_curso}, {"_id": 0})
+        return Curso(**doc)
+
+    try:
+        await db.cursos.update_one({"id_curso": id_curso}, {"$set": data})
+    except DuplicateKeyError:
+        raise HTTPException(status_code=409, detail="Conflito: já existe curso com este título nesta modalidade.")
+    updated = await db.cursos.find_one({"id_curso": id_curso}, {"_id": 0, "slug": 0})
+    return Curso(**updated)
 
 @api_router.delete("/cursos/{id_curso}")
 async def delete_curso(id_curso: int, token: dict = Depends(verify_token)):
@@ -840,6 +918,22 @@ logger = logging.getLogger(__name__)
 @app.on_event("shutdown")
 async def shutdown_db_client():
     client.close()
+
+@app.on_event("startup")
+async def ensure_indexes():
+    # Índice único em (slug, modalidade) para evitar duplicidade de título por modalidade.
+    # partialFilterExpression evita conflitos com documentos antigos sem slug.
+    try:
+        await db.cursos.create_index(
+            [("slug", 1), ("modalidade", 1)],
+            unique=True,
+            name="uniq_slug_modalidade",
+            background=True,
+            partialFilterExpression={"slug": {"$exists": True}}
+        )
+    except Exception:
+        # Se o índice já existe ou qualquer outro erro não-crítico, seguimos em frente
+        pass
 
 
 @api_router.post("/curso_trilha")
