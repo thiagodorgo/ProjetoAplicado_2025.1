@@ -27,7 +27,19 @@ export default function Cursos() {
   const [cursos, setCursos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({
+    titulo: '',
+    descricao: '',
+    carga_horaria: '',
+    modalidade: 'presencial',
+    tipo_treinamento: '',
+    publico_alvo: '',
+    instrutores: '',
+    permite_auto_inscricao: false
+  });
+  const [editFormData, setEditFormData] = useState({
     titulo: '',
     descricao: '',
     carga_horaria: '',
@@ -53,8 +65,43 @@ export default function Cursos() {
     }
   };
 
+  // Normaliza título para evitar duplicatas (case/acento-insensível)
+  const normalizeTitle = (t) => {
+    if (!t) return "";
+    return t
+      .trim()
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "") // remove diacríticos
+      .replace(/[^\w\s-]/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    // Checagem rápida no cliente para evitar duplicatas na mesma modalidade
+    const nNew = normalizeTitle(formData.titulo);
+    const existsSameTitleSameMod = cursos.some(
+      (c) => normalizeTitle(c.titulo) === nNew && c.modalidade === formData.modalidade
+    );
+    if (existsSameTitleSameMod) {
+      toast.error('Já existe um curso com este título nesta modalidade.');
+      return;
+    }
+
+    // Aviso (não bloqueante) se existir curso com mesmo título em outra modalidade com carga horária muito próxima
+    const similarOtherMod = cursos.filter(
+      (c) => normalizeTitle(c.titulo) === nNew && c.modalidade !== formData.modalidade
+    );
+    if (similarOtherMod.length > 0) {
+      const ch = Number(formData.carga_horaria || 0);
+      const tooClose = similarOtherMod.some((c) => Math.abs((c.carga_horaria || 0) - ch) <= 2);
+      if (tooClose) {
+        toast.warning('Há um curso com o mesmo título em outra modalidade e carga horária muito próxima.');
+      }
+    }
+
     try {
       await axios.post(`${API}/cursos`, {
         ...formData,
@@ -80,6 +127,63 @@ export default function Cursos() {
               let field = '';
               if (Array.isArray(d.loc)) {
                 // remove chaves padrão como 'body', 'query', 'path', 'header', 'form'
+                const skip = ['body', 'query', 'path', 'header', 'form'];
+                field = d.loc.filter((p) => typeof p === 'string' && !skip.includes(p)).join('.');
+              }
+              const message = d.msg || (typeof d === 'string' ? d : JSON.stringify(d));
+              return field ? `${field}: ${message}` : message;
+            })
+            .join(' | ');
+        } else if (typeof data.detail === 'string') {
+          errMsg = data.detail;
+        } else if (typeof data.detail === 'object') {
+          errMsg = JSON.stringify(data.detail);
+        }
+      } else if (data) {
+        errMsg = JSON.stringify(data);
+      }
+      toast.error(errMsg);
+    }
+  };
+
+  const openEdit = (curso) => {
+    setEditingId(curso.id_curso);
+    setEditFormData({
+      titulo: curso.titulo || '',
+      descricao: curso.descricao || '',
+      carga_horaria: String(curso.carga_horaria ?? ''),
+      modalidade: curso.modalidade || 'presencial',
+      tipo_treinamento: curso.tipo_treinamento || '',
+      publico_alvo: curso.publico_alvo || '',
+      instrutores: curso.instrutores || '',
+      permite_auto_inscricao: !!curso.permite_auto_inscricao
+    });
+    setEditDialogOpen(true);
+  };
+
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    if (!editingId) return;
+    try {
+      await axios.put(`${API}/cursos/${editingId}`, {
+        ...editFormData,
+        carga_horaria: parseInt(editFormData.carga_horaria)
+      });
+      toast.success('Curso atualizado com sucesso!');
+      setEditDialogOpen(false);
+      setEditingId(null);
+      fetchCursos();
+    } catch (error) {
+      let errMsg = 'Erro ao atualizar curso';
+      const data = error.response?.data;
+      if (typeof data === 'string') {
+        errMsg = data;
+      } else if (data?.detail) {
+        if (Array.isArray(data.detail)) {
+          errMsg = data.detail
+            .map((d) => {
+              let field = '';
+              if (Array.isArray(d.loc)) {
                 const skip = ['body', 'query', 'path', 'header', 'form'];
                 field = d.loc.filter((p) => typeof p === 'string' && !skip.includes(p)).join('.');
               }
@@ -342,6 +446,7 @@ export default function Cursos() {
                       <Button
                         variant="outline"
                         size="sm"
+                        onClick={() => openEdit(curso)}
                         className="flex-1"
                         data-testid={`edit-curso-${curso.id_curso}`}
                       >
@@ -393,6 +498,123 @@ export default function Cursos() {
           </div>
         )}
       </div>
+      {/* Dialog de Edição de Curso */}
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Editar Curso</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleEditSubmit} className="space-y-4">
+            <div>
+              <Label htmlFor="edit_titulo">Título *</Label>
+              <Input
+                id="edit_titulo"
+                value={editFormData.titulo}
+                onChange={(e) => setEditFormData({ ...editFormData, titulo: e.target.value })}
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit_descricao">Descrição</Label>
+              <Textarea
+                id="edit_descricao"
+                value={editFormData.descricao}
+                onChange={(e) => setEditFormData({ ...editFormData, descricao: e.target.value })}
+                rows={3}
+              />
+            </div>
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <Label htmlFor="edit_carga_horaria">Carga Horária (horas) *</Label>
+                <Input
+                  id="edit_carga_horaria"
+                  type="number"
+                  value={editFormData.carga_horaria}
+                  onChange={(e) => setEditFormData({ ...editFormData, carga_horaria: e.target.value })}
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit_modalidade">Modalidade *</Label>
+                <Select
+                  value={editFormData.modalidade}
+                  onValueChange={(value) => setEditFormData({ ...editFormData, modalidade: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="presencial">Presencial</SelectItem>
+                    <SelectItem value="online_sincrono">Online Síncrono</SelectItem>
+                    <SelectItem value="online_assincrono">Online Assíncrono</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="edit_tipo_treinamento">Tipo de Treinamento *</Label>
+                <Select
+                  value={editFormData.tipo_treinamento}
+                  onValueChange={(value) => setEditFormData({ ...editFormData, tipo_treinamento: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="nr31">NR31 - Segurança no Trabalho Rural</SelectItem>
+                    <SelectItem value="operacao_maquinas">Operação de Máquinas</SelectItem>
+                    <SelectItem value="agrotoxicos">Agrotóxicos</SelectItem>
+                    <SelectItem value="primeiros_socorros">Primeiros Socorros</SelectItem>
+                    <SelectItem value="prevencao_acidentes">Prevenção de Acidentes</SelectItem>
+                    <SelectItem value="outros">Outros</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div>
+              <Label htmlFor="edit_publico_alvo">Público Alvo</Label>
+              <Input
+                id="edit_publico_alvo"
+                value={editFormData.publico_alvo}
+                onChange={(e) => setEditFormData({ ...editFormData, publico_alvo: e.target.value })}
+                placeholder="Ex: Trabalhadores rurais"
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit_instrutores">Instrutores</Label>
+              <Input
+                id="edit_instrutores"
+                value={editFormData.instrutores}
+                onChange={(e) => setEditFormData({ ...editFormData, instrutores: e.target.value })}
+                placeholder="Ex: João Silva, Maria Santos"
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="edit_permite_auto_inscricao"
+                checked={editFormData.permite_auto_inscricao}
+                onChange={(e) => setEditFormData({ ...editFormData, permite_auto_inscricao: e.target.checked })}
+                className="w-4 h-4 rounded border-gray-300"
+              />
+              <Label htmlFor="edit_permite_auto_inscricao" className="cursor-pointer">
+                Permitir auto-inscrição
+              </Label>
+            </div>
+            <div className="flex gap-3 pt-4">
+              <Button type="submit" className="flex-1">
+                Salvar Alterações
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setEditDialogOpen(false)}
+              >
+                Cancelar
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
     </Layout>
   );
 }
