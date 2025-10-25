@@ -11,6 +11,7 @@ function isAdmin() {
   }
 }
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import { API } from '@/App';
 import Layout from '@/components/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -21,14 +22,21 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { toast } from 'sonner';
-import { Plus, BookOpen, Clock, Users, Edit, Trash2 } from 'lucide-react';
+import { Plus, BookOpen, Clock, Users, Edit, Trash2, Search, X } from 'lucide-react';
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/ui/dropdown-menu';
+import { Badge } from '@/components/ui/badge';
 
 export default function Cursos() {
+  const navigate = useNavigate();
   const [cursos, setCursos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  // Ordenação
+  const [sortOption, setSortOption] = useState('none'); // none | alphaAsc | alphaDesc | longest | shortest
+  // Busca
+  const [search, setSearch] = useState('');
   const [formData, setFormData] = useState({
     titulo: '',
     descricao: '',
@@ -77,6 +85,83 @@ export default function Cursos() {
       .replace(/\s+/g, " ")
       .trim();
   };
+
+  // Normalização de texto para busca
+  const normalize = (t) => {
+    if (!t) return '';
+    return t
+      .toString()
+      .trim()
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+  };
+
+  // Filtra por busca e aplica ordenação
+  const displayedCourses = React.useMemo(() => {
+    const q = normalize(search);
+    let arr = q
+      ? cursos.filter((c) => {
+          const title = normalize(c.titulo);
+          const desc = normalize(c.descricao || '');
+          const publico = normalize(c.publico_alvo || '');
+          const instr = normalize(c.instrutores || '');
+          return (
+            title.includes(q) || desc.includes(q) || publico.includes(q) || instr.includes(q)
+          );
+        })
+      : [...cursos];
+
+    switch (sortOption) {
+      case 'alphaAsc':
+        arr.sort((a, b) => (a.titulo || '').localeCompare(b.titulo || '', 'pt', { sensitivity: 'base' }));
+        break;
+      case 'alphaDesc':
+        arr.sort((a, b) => (b.titulo || '').localeCompare(a.titulo || '', 'pt', { sensitivity: 'base' }));
+        break;
+      case 'longest':
+        arr.sort((a, b) => (Number(b.carga_horaria) || 0) - (Number(a.carga_horaria) || 0));
+        break;
+      case 'shortest':
+        arr.sort((a, b) => (Number(a.carga_horaria) || 0) - (Number(b.carga_horaria) || 0));
+        break;
+      default:
+        break;
+    }
+    return arr;
+  }, [cursos, search, sortOption]);
+
+  // Sugestões por similaridade simples (Levenshtein) quando não houver resultados
+  const levenshtein = (a, b) => {
+    a = normalize(a); b = normalize(b);
+    const m = a.length, n = b.length;
+    if (m === 0) return n; if (n === 0) return m;
+    const dp = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));
+    for (let i = 0; i <= m; i++) dp[i][0] = i;
+    for (let j = 0; j <= n; j++) dp[0][j] = j;
+    for (let i = 1; i <= m; i++) {
+      for (let j = 1; j <= n; j++) {
+        const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+        dp[i][j] = Math.min(
+          dp[i - 1][j] + 1,
+          dp[i][j - 1] + 1,
+          dp[i - 1][j - 1] + cost
+        );
+      }
+    }
+    return dp[m][n];
+  };
+
+  const suggestions = React.useMemo(() => {
+    const q = normalize(search);
+    if (!q || displayedCourses.length > 0) return [];
+    const scored = cursos.map((c) => ({ title: c.titulo, dist: levenshtein(q, c.titulo) }));
+    scored.sort((a, b) => a.dist - b.dist);
+    const maxDist = Math.max(1, Math.floor(q.length * 0.4));
+    return scored.filter(s => s.dist <= maxDist).slice(0, 5).map(s => s.title);
+  }, [cursos, search, displayedCourses.length]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -402,6 +487,63 @@ export default function Cursos() {
           
         </div>
 
+        {/* Busca + Ordenação */}
+        <div className="flex items-center justify-between gap-3">
+          {/* Search */}
+          <div className="relative w-full max-w-xl">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <Input
+              placeholder="Buscar cursos por título, descrição, público ou instrutor..."
+              className="pl-10"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+            {search && (
+              <button
+                aria-label="Limpar busca"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                onClick={() => setSearch('')}
+              >
+                <X className="w-5 h-5" />
+              </button>
+            )}
+            {suggestions.length > 0 && (
+              <div className="mt-2 flex flex-wrap gap-2">
+                <span className="text-xs text-gray-500">Você quis dizer:</span>
+                {suggestions.map((s, idx) => (
+                  <Button key={idx} variant="outline" size="sm" onClick={() => setSearch(s)}>
+                    {s}
+                  </Button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Ordenação compacta + chip */}
+          <div className="flex items-center gap-2">
+            {sortOption !== 'none' && (
+              <Badge variant="secondary" className="hidden sm:inline-flex">
+                {sortOption === 'alphaAsc' && 'Ordenado: A → Z'}
+                {sortOption === 'alphaDesc' && 'Ordenado: Z → A'}
+                {sortOption === 'longest' && 'Ordenado: mais longos'}
+                {sortOption === 'shortest' && 'Ordenado: mais curtos'}
+              </Badge>
+            )}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm">Ordenar</Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => setSortOption('alphaAsc')}>A → Z</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSortOption('alphaDesc')}>Z → A</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSortOption('longest')}>Cursos mais longos</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSortOption('shortest')}>Cursos mais curtos</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSortOption('none')}>Padrão</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </div>
+
         {/* Cursos Grid */}
         {cursos.length === 0 ? (
           <Card className="border-0 shadow-lg">
@@ -413,8 +555,8 @@ export default function Cursos() {
           </Card>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {cursos.map((curso) => (
-              <Card key={curso.id_curso} className="card-hover border-0 shadow-lg" data-testid={`curso-card-${curso.id_curso}`}>
+            {displayedCourses.map((curso) => (
+              <Card key={curso.id_curso} className="card-hover border-0 shadow-lg cursor-pointer" data-testid={`curso-card-${curso.id_curso}`} onClick={() => navigate(`/cursos/${curso.id_curso}`)}>
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
@@ -446,7 +588,7 @@ export default function Cursos() {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => openEdit(curso)}
+                        onClick={(e) => { e.stopPropagation(); openEdit(curso); }}
                         className="flex-1"
                         data-testid={`edit-curso-${curso.id_curso}`}
                       >
@@ -456,7 +598,7 @@ export default function Cursos() {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => handleDelete(curso.id_curso)}
+                        onClick={(e) => { e.stopPropagation(); handleDelete(curso.id_curso); }}
                         className="text-red-600 hover:bg-red-50"
                         data-testid={`delete-curso-${curso.id_curso}`}
                       >
@@ -465,7 +607,8 @@ export default function Cursos() {
                       <Button
                         variant="default"
                         size="sm"
-                        onClick={async () => {
+                        onClick={async (e) => {
+                          e.stopPropagation();
                           try {
                             const userData = JSON.parse(localStorage.getItem('user'));
                             // Buscar inscrições do usuário
