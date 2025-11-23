@@ -5,6 +5,7 @@ import '@/App.css';
 import Login from '@/pages/Login';
 import Dashboard from '@/pages/Dashboard';
 import Cursos from '@/pages/Cursos';
+import CursoDetalhes from '@/pages/CursoDetalhes';
 import Trilhas from '@/pages/Trilhas';
 import Colaboradores from '@/pages/Colaboradores';
 import MinhasCursos from '@/pages/MeusCursos';
@@ -62,6 +63,7 @@ function App() {
             <Route path="/login" element={!user ? <Login /> : <Navigate to="/" />} />
             <Route path="/" element={user ? <Dashboard /> : <Navigate to="/login" />} />
             <Route path="/cursos" element={user ? <Cursos /> : <Navigate to="/login" />} />
+            <Route path="/cursos/:id" element={user ? <CursoDetalhes /> : <Navigate to="/login" />} />
             <Route path="/trilhas" element={user ? <Trilhas /> : <Navigate to="/login" />} />
             <Route path="/colaboradores" element={user ? <Colaboradores /> : <Navigate to="/login" />} />
             <Route path="/meus-cursos" element={user ? <MinhasCursos /> : <Navigate to="/login" />} />
