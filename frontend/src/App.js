@@ -60,8 +60,9 @@ function App() {
         <Toaster position="top-right" richColors />
         <BrowserRouter>
           <Routes>
-            <Route path="/login" element={!user ? <Login /> : <Navigate to="/" />} />
-            <Route path="/" element={user ? <Dashboard /> : <Navigate to="/login" />} />
+            <Route path="/" element={!user ? <Login /> : <Navigate to="/dashboard" />} />
+            <Route path="/login" element={!user ? <Login /> : <Navigate to="/dashboard" />} />
+            <Route path="/dashboard" element={user ? <Dashboard /> : <Navigate to="/login" />} />
             <Route path="/cursos" element={user ? <Cursos /> : <Navigate to="/login" />} />
             <Route path="/cursos/:id" element={user ? <CursoDetalhes /> : <Navigate to="/login" />} />
             <Route path="/trilhas" element={user ? <Trilhas /> : <Navigate to="/login" />} />
