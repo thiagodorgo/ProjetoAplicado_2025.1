@@ -11,6 +11,7 @@ import Colaboradores from '@/pages/Colaboradores';
 import MinhasCursos from '@/pages/MeusCursos';
 import Relatorios from '@/pages/Relatorios';
 import RegrasObrigatorias from '@/pages/RegrasObrigatorias';
+import InscricoesPendentes from '@/pages/InscricoesPendentes';
 import { Toaster } from '@/components/ui/sonner';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
@@ -69,6 +70,7 @@ function App() {
             <Route path="/meus-cursos" element={user ? <MinhasCursos /> : <Navigate to="/login" />} />
             <Route path="/relatorios" element={user ? <Relatorios /> : <Navigate to="/login" />} />
             <Route path="/regras" element={user ? <RegrasObrigatorias /> : <Navigate to="/login" />} />
+            <Route path="/inscricoes-pendentes" element={user ? <InscricoesPendentes /> : <Navigate to="/login" />} />
           </Routes>
         </BrowserRouter>
       </div>

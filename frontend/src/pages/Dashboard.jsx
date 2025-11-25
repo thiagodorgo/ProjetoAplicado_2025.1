@@ -83,6 +83,30 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {statCards.map((stat, index) => {
             const Icon = stat.icon;
+            // Adiciona link para inscrições pendentes
+            if (stat.testId === 'inscricoes-pendentes') {
+              return (
+                <a href="/inscricoes-pendentes" key={index} className="block">
+                  <Card
+                    className="card-hover border-0 shadow-lg overflow-hidden"
+                    data-testid={stat.testId}
+                  >
+                    <CardContent className="p-6">
+                      <div className="flex items-start justify-between">
+                        <div className="space-y-2">
+                          <p className="text-sm font-medium text-gray-600">{stat.title}</p>
+                          <p className="text-3xl font-bold text-gray-900">{stat.value}</p>
+                        </div>
+                        <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${stat.color} flex items-center justify-center`}>
+                          <Icon className="w-7 h-7 text-white" />
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </a>
+              );
+            }
+
             return (
               <Card
                 key={index}

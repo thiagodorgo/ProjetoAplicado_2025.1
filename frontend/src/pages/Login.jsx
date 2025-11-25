@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
-import { LogIn, User, Lock, Sprout } from 'lucide-react';
+import { LogIn, User, Lock, Sprout, GraduationCap } from 'lucide-react';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -37,16 +37,14 @@ export default function Login() {
       </div>
 
       <Card className="w-full max-w-md relative z-10 glass border-0 shadow-2xl" data-testid="login-card">
-        <CardHeader className="space-y-3 text-center">
-          <div className="mx-auto w-16 h-16 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl flex items-center justify-center mb-2 shadow-lg">
-            <Sprout className="w-8 h-8 text-white" />
-          </div>
+        <CardHeader className="space-y-3 text-center rounded-3xl">
+          <img src={require('@/imgs/logo_app.png')} alt="Logo" className="mx-auto w-20 h-20 object-contain rounded-3xl mb-2" />
           <CardTitle className="text-3xl font-bold bg-gradient-to-r from-blue-700 to-indigo-700 bg-clip-text text-transparent">
             TechSolutions
           </CardTitle>
           <CardDescription className="text-base text-gray-600">
             Sistema de Treinamentos Obrigatórios<br/>
-            <span className="text-sm text-gray-500">Conformidade NR-31 para Trabalho Rural</span>
+            <span className="text-sm text-gray-500"></span>
           </CardDescription>
         </CardHeader>
 

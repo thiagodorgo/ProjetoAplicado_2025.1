@@ -6,30 +6,38 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { toast } from 'sonner';
 import { GraduationCap, Award, Clock } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 export default function MeusCursos() {
   const { user } = useContext(AuthContext);
   const [meusCursos, setMeusCursos] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchMeusCursos();
     // eslint-disable-next-line
   }, []);
 
+  const statusOrder = {
+    concluido: 1,
+    em_andamento: 2,
+    pendente: 3,
+    cancelado: 4
+  };
+
   const fetchMeusCursos = async () => {
     try {
-      // Busca apenas as inscrições do usuário logado
       const inscricoesRes = await axios.get(`${API}/inscricoes?id_colaborador=${user.id_colaborador}`);
       const inscricoes = inscricoesRes.data;
-      // Para cada inscrição, busca o curso correspondente
       const cursosPromises = inscricoes.map(insc => axios.get(`${API}/cursos/${insc.id_curso}`));
       const cursosRes = await Promise.allSettled(cursosPromises);
-      // Monta lista de cursos com progresso e status
       const cursosCompletos = inscricoes.map((insc, idx) => {
         const cursoData = cursosRes[idx].status === 'fulfilled' ? cursosRes[idx].value.data : null;
         return cursoData ? { ...cursoData, status: insc.status, id_inscricao: insc.id_inscricao } : null;
       }).filter(Boolean);
+      // Ordena cursos por status
+      cursosCompletos.sort((a, b) => (statusOrder[a.status] || 99) - (statusOrder[b.status] || 99));
       setMeusCursos(cursosCompletos);
     } catch (error) {
       toast.error('Erro ao carregar seus cursos');
@@ -39,19 +47,11 @@ export default function MeusCursos() {
   };
 
   const getStatusBadge = (status) => {
-    const styles = {
-      pendente: 'status-pendente',
-      em_andamento: 'status-em_andamento',
-      concluido: 'status-concluido',
-      cancelado: 'status-cancelado'
-    };
-    const labels = {
-      pendente: 'Pendente',
-      em_andamento: 'Em Andamento',
-      concluido: 'Concluído',
-      cancelado: 'Cancelado'
-    };
-    return <span className={`status-badge ${styles[status]}`}>{labels[status]}</span>;
+    if (status === 'concluido') return <span className="px-2 py-1 rounded bg-green-100 text-green-700 text-xs font-bold">Aprovado</span>;
+    if (status === 'pendente') return <span className="px-2 py-1 rounded bg-yellow-100 text-yellow-700 text-xs font-bold">Esperando aprovação</span>;
+    if (status === 'cancelado') return <span className="px-2 py-1 rounded bg-gray-200 text-gray-500 text-xs font-bold">Cancelado</span>;
+    if (status === 'em_andamento') return <span className="px-2 py-1 rounded bg-blue-100 text-blue-700 text-xs font-bold">Em andamento</span>;
+    return <span className="px-2 py-1 rounded bg-gray-100 text-gray-700 text-xs font-bold">{status}</span>;
   };
 
   if (loading) {
@@ -82,41 +82,49 @@ export default function MeusCursos() {
           </Card>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {meusCursos.map((curso) => (
-              <Card key={curso.id_inscricao} className="card-hover border-0 shadow-lg" data-testid={`inscricao-card-${curso.id_inscricao}`}>
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <CardTitle className="text-xl">{curso.titulo}</CardTitle>
-                    <span className={`status-badge status-${curso.status}`}>{curso.status.charAt(0).toUpperCase() + curso.status.slice(1).replace('_', ' ')}</span>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <p className="text-sm text-gray-600">
-                    {curso.descricao || 'Sem descrição'}
-                  </p>
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-600">Progresso</span>
-                      {/* Progresso não está disponível diretamente, pode ser adicionado se necessário */}
-                      <span className="font-semibold">-</span>
+            {meusCursos.map((curso) => {
+              const isAprovado = curso.status === 'concluido';
+              return (
+                <Card
+                  key={curso.id_inscricao}
+                  className={`card-hover border-0 shadow-lg ${!isAprovado ? 'opacity-50 pointer-events-none cursor-not-allowed' : 'cursor-pointer'}`}
+                  data-testid={`inscricao-card-${curso.id_inscricao}`}
+                  onClick={isAprovado ? () => navigate(`/cursos/${curso.id_curso}`) : undefined}
+                  title={isAprovado ? '' : 'Curso indisponível até aprovação'}
+                >
+                  <CardHeader>
+                    <div className="flex items-start justify-between">
+                      <CardTitle className="text-xl">{curso.titulo}</CardTitle>
+                      {getStatusBadge(curso.status)}
                     </div>
-                    <Progress value={0} className="h-2" />
-                  </div>
-                  <div className="flex items-center gap-4 text-sm text-gray-600">
-                    <div className="flex items-center gap-1">
-                      <Clock className="w-4 h-4" />
-                      <span>{curso.carga_horaria}h</span>
-                    </div>
-                    {curso.status === 'concluido' && (
-                      <div className="flex items-center gap-1 text-green-600">
-                        <Award className="w-4 h-4" />
-                        <span>Certificado disponível</span>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <p className="text-sm text-gray-600">
+                      {curso.descricao || 'Sem descrição'}
+                    </p>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-600">Progresso</span>
+                        <span className="font-semibold">-</span>
                       </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                      <Progress value={0} className="h-2" />
+                    </div>
+                    <div className="flex items-center gap-4 text-sm text-gray-600">
+                      <div className="flex items-center gap-1">
+                        <Clock className="w-4 h-4" />
+                        <span>{curso.carga_horaria}h</span>
+                      </div>
+                      {curso.status === 'concluido' && (
+                        <div className="flex items-center gap-1 text-green-600">
+                          <Award className="w-4 h-4" />
+                          <span>Certificado disponível</span>
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         )}
       </div>

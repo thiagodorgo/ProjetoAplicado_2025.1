@@ -1,4 +1,3 @@
-
 # Desenvolvedores: Thiago, Fabricio, Pettrin, Joseph
 # Sistema completo de gestão de treinamentos obrigatórios para trabalhadores
 
@@ -607,12 +606,24 @@ async def get_colaboradores(ativo: Optional[bool] = None, token: dict = Depends(
     colaboradores = await db.colaboradores.find(query, {"_id": 0, "senha_hash": 0}).to_list(1000)
     return colaboradores
 
-@api_router.get("/colaboradores/{id_colaborador}", response_model=Colaborador)
-async def get_colaborador(id_colaborador: int, token: dict = Depends(verify_token)):
-    colab = await db.colaboradores.find_one({"id_colaborador": id_colaborador}, {"_id": 0, "senha_hash": 0})
-    if not colab:
+
+@api_router.put("/colaboradores/{id_colaborador}", response_model=Colaborador)
+async def update_colaborador(id_colaborador: int, update: dict, token: dict = Depends(verify_token)):
+    existing = await db.colaboradores.find_one({"id_colaborador": id_colaborador})
+    if not existing:
         raise HTTPException(status_code=404, detail="Colaborador não encontrado")
-    return Colaborador(**colab)
+    # Não permitir alteração de senha por aqui
+    update = {k: v for k, v in update.items() if k != "senha_hash" and k != "senha"}
+    await db.colaboradores.update_one({"id_colaborador": id_colaborador}, {"$set": update})
+    updated = await db.colaboradores.find_one({"id_colaborador": id_colaborador}, {"_id": 0, "senha_hash": 0})
+    return Colaborador(**updated)
+
+@api_router.delete("/colaboradores/{id_colaborador}")
+async def delete_colaborador(id_colaborador: int, token: dict = Depends(verify_token)):
+    result = await db.colaboradores.delete_one({"id_colaborador": id_colaborador})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Colaborador não encontrado")
+    return {"message": "Colaborador excluído com sucesso"}
 
 # =============== ROTAS DE CURSO ===============
 # Criamos e gerenciamos os treinamentos obrigatórios
@@ -852,7 +863,7 @@ async def create_inscricao(inscricao: InscricaoCreate, token: dict = Depends(ver
         doc["data_prevista"] = datetime.fromisoformat(doc["data_prevista"])
     return Inscricao(**doc)
 
-@api_router.get("/inscricoes", response_model=List[Inscricao])
+@api_router.get("/inscricoes")
 async def get_inscricoes(
     id_colaborador: Optional[int] = None,
     id_curso: Optional[int] = None,
@@ -868,6 +879,7 @@ async def get_inscricoes(
         query["status"] = status.value
     
     inscricoes = await db.inscricoes.find(query, {"_id": 0}).to_list(1000)
+    results = []
     for insc in inscricoes:
         if isinstance(insc["data_inscricao"], str):
             insc["data_inscricao"] = datetime.fromisoformat(insc["data_inscricao"])
@@ -875,7 +887,56 @@ async def get_inscricoes(
             insc["data_prevista"] = datetime.fromisoformat(insc["data_prevista"])
         if insc.get("data_conclusao") and isinstance(insc["data_conclusao"], str):
             insc["data_conclusao"] = datetime.fromisoformat(insc["data_conclusao"])
-    return inscricoes
+        
+        colab = await db.colaboradores.find_one({"id_colaborador": insc["id_colaborador"]}, {"_id": 0, "nome": 1})
+        nome_colaborador = colab["nome"] if colab and "nome" in colab else "Desconhecido"
+        curso = await db.cursos.find_one({"id_curso": insc["id_curso"]}, {"_id": 0, "titulo": 1})
+        titulo_curso = curso["titulo"] if curso and "titulo" in curso else "Desconhecido"
+        insc_dict = dict(insc)
+        insc_dict["nome_colaborador"] = nome_colaborador
+        insc_dict["titulo_curso"] = titulo_curso
+        results.append(insc_dict)
+    return results
+
+@api_router.put("/inscricoes/{id_inscricao}", response_model=Inscricao)
+async def update_inscricao(id_inscricao: int, update: InscricaoUpdate, token: dict = Depends(verify_token)):
+    import logging
+    logger = logging.getLogger("inscricoes")
+    logger.info(f"PUT /inscricoes/{id_inscricao} | id_inscricao recebido: {id_inscricao} | tipo: {type(id_inscricao)}")
+    existing = await db.inscricoes.find_one({"id_inscricao": id_inscricao})
+    logger.info(f"Resultado busca: {existing}")
+    if not existing:
+        logger.error(f"Inscrição não encontrada para id_inscricao={id_inscricao}")
+        raise HTTPException(status_code=404, detail="Inscrição não encontrada")
+    
+    data = update.model_dump(exclude_unset=True)
+    # Converter enums para valores string antes de salvar
+    if "status" in data and data["status"] is not None:
+        data["status"] = data["status"].value
+    if "tipo_inscricao" in data and data["tipo_inscricao"] is not None:
+        data["tipo_inscricao"] = data["tipo_inscricao"].value
+    
+    # Lidar com datas
+    if "data_conclusao" in data and data["data_conclusao"] is not None:
+        data["data_conclusao"] = data["data_conclusao"].isoformat()
+    if "data_prevista" in data and data["data_prevista"] is not None:
+        data["data_prevista"] = data["data_prevista"].isoformat()
+    
+    if not data:
+        updated = existing
+    else:
+        await db.inscricoes.update_one({"id_inscricao": id_inscricao}, {"$set": data})
+        updated = await db.inscricoes.find_one({"id_inscricao": id_inscricao}, {"_id": 0})
+    
+    # Converter de volta para datetime
+    if isinstance(updated["data_inscricao"], str):
+        updated["data_inscricao"] = datetime.fromisoformat(updated["data_inscricao"])
+    if updated.get("data_prevista") and isinstance(updated["data_prevista"], str):
+        updated["data_prevista"] = datetime.fromisoformat(updated["data_prevista"])
+    if updated.get("data_conclusao") and isinstance(updated["data_conclusao"], str):
+        updated["data_conclusao"] = datetime.fromisoformat(updated["data_conclusao"])
+    
+    return Inscricao(**updated)
 
 # =============== ROTAS DE CERTIFICADO ===============
 # Emitimos e validamos certificados digitais
