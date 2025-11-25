@@ -5,12 +5,10 @@ import Layout from '@/components/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BookOpen, Users, ClipboardCheck, Clock, TrendingUp } from 'lucide-react';
 import { toast } from 'sonner';
-import { useNavigate } from 'react-router-dom';
 
 export default function Dashboard() {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
 
   useEffect(() => {
     fetchStats();
@@ -34,8 +32,7 @@ export default function Dashboard() {
       icon: BookOpen,
       color: 'from-blue-500 to-blue-600',
       bgColor: 'bg-blue-50',
-      testId: 'total-cursos',
-      action: () => navigate('/cursos')
+      testId: 'total-cursos'
     },
     {
       title: 'Colaboradores',
@@ -43,8 +40,7 @@ export default function Dashboard() {
       icon: Users,
       color: 'from-green-500 to-green-600',
       bgColor: 'bg-green-50',
-      testId: 'total-colaboradores',
-      action: () => navigate('/colaboradores')
+      testId: 'total-colaboradores'
     },
     {
       title: 'Inscrições Concluídas',
@@ -52,8 +48,7 @@ export default function Dashboard() {
       icon: ClipboardCheck,
       color: 'from-teal-500 to-teal-600',
       bgColor: 'bg-teal-50',
-      testId: 'inscricoes-concluidas',
-      action: () => navigate('/meus-cursos')
+      testId: 'inscricoes-concluidas'
     },
     {
       title: 'Inscrições Pendentes',
@@ -61,8 +56,7 @@ export default function Dashboard() {
       icon: Clock,
       color: 'from-orange-500 to-orange-600',
       bgColor: 'bg-orange-50',
-      testId: 'inscricoes-pendentes',
-      action: () => navigate('/meus-cursos')
+      testId: 'inscricoes-pendentes'
     },
   ];
 
@@ -95,23 +89,17 @@ export default function Dashboard() {
                 className="card-hover border-0 shadow-lg overflow-hidden"
                 data-testid={stat.testId}
               >
-                <button
-                  type="button"
-                  onClick={stat.action}
-                  className="block w-full text-left appearance-none bg-transparent p-0 m-0 border-0"
-                >
-                  <CardContent className="p-6">
-                    <div className="flex items-start justify-between">
-                      <div className="space-y-2">
-                        <p className="text-sm font-medium text-gray-600">{stat.title}</p>
-                        <p className="text-3xl font-bold text-gray-900">{stat.value}</p>
-                      </div>
-                      <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${stat.color} flex items-center justify-center`}>
-                        <Icon className="w-7 h-7 text-white" />
-                      </div>
+                <CardContent className="p-6">
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium text-gray-600">{stat.title}</p>
+                      <p className="text-3xl font-bold text-gray-900">{stat.value}</p>
                     </div>
-                  </CardContent>
-                </button>
+                    <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${stat.color} flex items-center justify-center`}>
+                      <Icon className="w-7 h-7 text-white" />
+                    </div>
+                  </div>
+                </CardContent>
               </Card>
             );
           })}

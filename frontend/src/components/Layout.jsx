@@ -1,114 +1,147 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { AuthContext } from '@/App';
+import { Button } from '@/components/ui/button';
 import {
   LayoutDashboard,
   BookOpen,
-  Layers,
+  Route,
   Users,
   GraduationCap,
-  LineChart,
-  Shield,
-  ChevronLeft,
-  ChevronRight
+  BarChart3,
+  Settings,
+  LogOut,
+  Sprout,
+  Menu,
+  X
 } from 'lucide-react';
+import { useState } from 'react';
 
 export default function Layout({ children }) {
+  const { user, logout } = useContext(AuthContext);
   const location = useLocation();
-  const [collapsed, setCollapsed] = React.useState(false);
-
-  React.useEffect(() => {
-    const saved = localStorage.getItem('sidebarCollapsed');
-    if (saved) setCollapsed(saved === '1');
-  }, []);
-
-  const toggleCollapsed = () => {
-    setCollapsed((c) => {
-      const next = !c;
-      localStorage.setItem('sidebarCollapsed', next ? '1' : '0');
-      return next;
-    });
-  };
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const navItems = [
-    { to: '/', label: 'Dashboard', Icon: LayoutDashboard },
-    { to: '/cursos', label: 'Cursos', Icon: BookOpen },
-    { to: '/trilhas', label: 'Trilhas', Icon: Layers },
-    { to: '/colaboradores', label: 'Colaboradores', Icon: Users },
-    { to: '/meus-cursos', label: 'Meus Cursos', Icon: GraduationCap },
-    { to: '/relatorios', label: 'Relatórios', Icon: LineChart },
-    { to: '/regras', label: 'Regras', Icon: Shield }
+    { path: '/', icon: LayoutDashboard, label: 'Dashboard' },
+    { path: '/cursos', icon: BookOpen, label: 'Cursos' },
+    { path: '/trilhas', icon: Route, label: 'Trilhas' },
+    { path: '/colaboradores', icon: Users, label: 'Colaboradores' },
+    { path: '/meus-cursos', icon: GraduationCap, label: 'Meus Cursos' },
+    { path: '/regras', icon: Settings, label: 'Regras Obrigatórias' },
+    { path: '/relatorios', icon: BarChart3, label: 'Relatórios' },
   ];
 
-  const padClass = collapsed ? 'md:pl-20' : 'md:pl-64';
-
-  const NavLink = ({ to, label, Icon }) => {
-    const active = location.pathname === to;
-    return (
-      <Link
-        to={to}
-        title={label}
-        className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors ${
-          active ? 'bg-green-600 text-white' : 'text-gray-700 hover:bg-gray-100'
-        }`}
-      >
-        <Icon className="w-5 h-5 shrink-0" />
-        <span
-          className={`whitespace-nowrap transition-opacity ${
-            collapsed ? 'opacity-0 pointer-events-none select-none' : 'opacity-100'
-          }`}
-        >
-          {label}
-        </span>
-      </Link>
-    );
-  };
+  const isActive = (path) => location.pathname === path;
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Sidebar (desktop) */}
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100">
+      {/* Mobile menu button */}
+      <div className="lg:hidden fixed top-4 left-4 z-50">
+        <Button
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+          size="icon"
+          variant="outline"
+          className="bg-white shadow-lg"
+          data-testid="mobile-menu-button"
+        >
+          {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+        </Button>
+      </div>
+
+      {/* Sidebar */}
       <aside
-        className={`hidden md:flex md:flex-col md:fixed md:inset-y-0 bg-white border-r transition-all duration-200 ${
-          collapsed ? 'md:w-20' : 'md:w-64'
-        }`}
+        className={`
+          fixed top-0 left-0 h-full w-72 bg-white border-r border-gray-200 shadow-xl z-40
+          transform transition-transform duration-300 ease-in-out
+          lg:translate-x-0
+          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+        `}
+        data-testid="sidebar"
       >
-        <div className="px-3 py-3 flex items-center justify-between">
-          <div className={`text-lg font-bold text-green-700 ${collapsed ? 'opacity-0' : 'opacity-100'} transition-opacity`}>
-            App
+        <div className="flex flex-col h-full">
+          {/* Logo */}
+          <div className="p-6 border-b border-gray-200">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-xl flex items-center justify-center shadow-lg">
+                <Sprout className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold text-gray-900">TechSolutions</h1>
+                <p className="text-xs text-gray-500">Software de gerenciamento de treinamentos obrigatórios</p>
+              </div>
+            </div>
           </div>
-          <button
-            aria-label="Alternar sidebar"
-            onClick={toggleCollapsed}
-            className="p-2 rounded hover:bg-gray-100 text-gray-700"
-            title={collapsed ? 'Expandir' : 'Recolher'}
-          >
-            {collapsed ? <ChevronRight className="w-5 h-5" /> : <ChevronLeft className="w-5 h-5" />}
-          </button>
+
+          {/* User Info */}
+          <div className="p-6 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-full flex items-center justify-center text-white font-semibold shadow-md">
+                {user?.nome?.charAt(0).toUpperCase()}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-gray-900 truncate">{user?.nome}</p>
+                <p className="text-xs text-gray-500 truncate">{user?.email}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Navigation */}
+          <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              const active = isActive(item.path);
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  onClick={() => setSidebarOpen(false)}
+                  className={`
+                    flex items-center gap-3 px-4 py-3 rounded-xl font-medium
+                    transition-all duration-200
+                    ${active
+                      ? 'bg-gradient-to-r from-blue-600 to-indigo-700 text-white shadow-md'
+                      : 'text-gray-600 hover:bg-gray-100'
+                    }
+                  `}
+                  data-testid={`nav-${item.path.slice(1) || 'dashboard'}`}
+                >
+                  <Icon className="w-5 h-5" />
+                  <span>{item.label}</span>
+                </Link>
+              );
+            })}
+          </nav>
+
+          {/* Logout */}
+          <div className="p-4 border-t border-gray-200">
+            <Button
+              onClick={logout}
+              variant="outline"
+              className="w-full justify-start gap-3 text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300"
+              data-testid="logout-button"
+            >
+              <LogOut className="w-5 h-5" />
+              Sair
+            </Button>
+          </div>
         </div>
-        <nav className="flex-1 px-2 space-y-1">
-          {navItems.map((it) => (
-            <NavLink key={it.to} to={it.to} label={it.label} Icon={it.Icon} />
-          ))}
-        </nav>
       </aside>
 
-      {/* Content area with left padding when sidebar is visible */}
-      <div className={`${padClass} flex flex-col min-h-screen`}>
-        {/* Top bar (mobile only) */}
-        <header className="md:hidden bg-white border-b">
-          <div className="px-4 py-3 flex items-center gap-3 overflow-x-auto">
-            <div className="font-bold text-green-700">App</div>
-            <nav className="flex gap-2">
-              {navItems.map((it) => (
-                <Link key={it.to} to={it.to} className={`px-3 py-2 rounded ${location.pathname === it.to ? 'bg-green-600 text-white' : 'text-gray-700 hover:bg-gray-100'}`}>
-                  {it.label}
-                </Link>
-              ))}
-            </nav>
-          </div>
-        </header>
+      {/* Overlay for mobile */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-30 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        ></div>
+      )}
 
-        <main className="flex-1 px-4 py-6">{children}</main>
-      </div>
+      {/* Main content */}
+      <main className="lg:ml-72 min-h-screen">
+        <div className="p-6 lg:p-8">
+          {children}
+        </div>
+      </main>
     </div>
   );
 }

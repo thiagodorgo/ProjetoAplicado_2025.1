@@ -631,6 +631,26 @@ async def create_curso(curso: CursoCreate, token: dict = Depends(verify_token)):
     doc = {"id_curso": id_curso, **data}
     # slug para unicidade por (titulo, modalidade)
     doc["slug"] = slugify_title(doc.get("titulo", ""))
+
+    # Validação adicional: verificar cursos similares em outras modalidades
+    titulo_normalizado = slugify_title(doc.get("titulo", ""))
+    carga_horaria_nova = doc.get("carga_horaria", 0)
+
+    # Buscar cursos com mesmo título em outras modalidades
+    cursos_similares = await db.cursos.find({
+        "slug": titulo_normalizado,
+        "modalidade": {"$ne": doc.get("modalidade")}
+    }, {"_id": 0, "carga_horaria": 1}).to_list(100)
+
+    # Verificar se algum curso similar tem carga horária muito próxima (<= 2 horas de diferença)
+    for curso_existente in cursos_similares:
+        carga_horaria_existente = curso_existente.get("carga_horaria", 0)
+        if abs(carga_horaria_existente - carga_horaria_nova) <= 2:
+            raise HTTPException(
+                status_code=409,
+                detail=f"Já existe um curso com título similar ('{doc.get('titulo', '')}') em outra modalidade com carga horária muito próxima ({carga_horaria_existente}h vs {carga_horaria_nova}h)."
+            )
+
     try:
         await db.cursos.insert_one(doc)
     except DuplicateKeyError:
@@ -685,6 +705,33 @@ async def update_curso(id_curso: int, update: CursoUpdate, token: dict = Depends
     elif existing.get("slug") is None and existing.get("titulo"):
         # backfill slug se ainda não existir
         data["slug"] = slugify_title(existing.get("titulo"))
+
+    # Validação adicional: verificar cursos similares em outras modalidades (apenas se título ou modalidade mudou)
+    titulo_mudou = "titulo" in data or "slug" in data
+    modalidade_mudou = "modalidade" in data
+    carga_horaria_mudou = "carga_horaria" in data
+
+    if titulo_mudou or modalidade_mudou or carga_horaria_mudou:
+        titulo_normalizado = data.get("slug", existing.get("slug", ""))
+        modalidade_atual = data.get("modalidade", existing.get("modalidade"))
+        carga_horaria_atual = data.get("carga_horaria", existing.get("carga_horaria", 0))
+
+        # Buscar cursos com mesmo título em outras modalidades (excluindo o próprio curso)
+        cursos_similares = await db.cursos.find({
+            "slug": titulo_normalizado,
+            "modalidade": {"$ne": modalidade_atual},
+            "id_curso": {"$ne": id_curso}  # Excluir o próprio curso sendo editado
+        }, {"_id": 0, "carga_horaria": 1}).to_list(100)
+
+        # Verificar se algum curso similar tem carga horária muito próxima (<= 2 horas de diferença)
+        for curso_existente in cursos_similares:
+            carga_horaria_existente = curso_existente.get("carga_horaria", 0)
+            if abs(carga_horaria_existente - carga_horaria_atual) <= 2:
+                titulo_original = data.get("titulo", existing.get("titulo", ""))
+                raise HTTPException(
+                    status_code=409,
+                    detail=f"Já existe um curso com título similar ('{titulo_original}') em outra modalidade com carga horária muito próxima ({carga_horaria_existente}h vs {carga_horaria_atual}h)."
+                )
 
     if not data:
         # Nada para atualizar

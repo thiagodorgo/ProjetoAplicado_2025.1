@@ -175,18 +175,6 @@ export default function Cursos() {
       return;
     }
 
-    // Aviso (não bloqueante) se existir curso com mesmo título em outra modalidade com carga horária muito próxima
-    const similarOtherMod = cursos.filter(
-      (c) => normalizeTitle(c.titulo) === nNew && c.modalidade !== formData.modalidade
-    );
-    if (similarOtherMod.length > 0) {
-      const ch = Number(formData.carga_horaria || 0);
-      const tooClose = similarOtherMod.some((c) => Math.abs((c.carga_horaria || 0) - ch) <= 2);
-      if (tooClose) {
-        toast.warning('Há um curso com o mesmo título em outra modalidade e carga horária muito próxima.');
-      }
-    }
-
     try {
       await axios.post(`${API}/cursos`, {
         ...formData,
